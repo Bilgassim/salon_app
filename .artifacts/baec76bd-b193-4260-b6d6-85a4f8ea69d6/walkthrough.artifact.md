@@ -1,27 +1,27 @@
-# Walkthrough - Optimisation de la Responsivité
+# Walkthrough - Gestion Responsable des Réservations
 
-J'ai apporté plusieurs modifications pour garantir que le site du Centre de Beauté Zara s'affiche parfaitement sur tous les appareils, des smartphones les plus étroits aux grands écrans de bureau.
+J'ai ajouté un système complet de gestion des réservations qui permet aux clientes d'être plus autonomes tout en garantissant le sérieux des rendez-vous pour le salon.
 
-## Changements Principaux
+## Nouvelles Fonctionnalités
 
-### 1. Page d'Accueil (Home)
-- **Taille de l'image Hero :** L'image principale est désormais fluide (`max-w-[280px]` sur mobile) pour éviter de déborder sur les petits écrans.
-- **Badges flottants :** Les badges ("File d'attente", "Prochain créneau") ont été repositionnés pour ne pas sortir de l'écran sur mobile tout en gardant leur effet de profondeur sur desktop.
-- **Polices adaptatives :** Les titres principaux utilisent maintenant des tailles variables (`text-4xl` sur mobile, `text-6xl` sur desktop) pour une meilleure lisibilité.
-- **Centrage mobile :** Les textes et boutons sont centrés sur mobile pour un rendu plus naturel.
+### 1. Reconnaissance Automatique
+- Lorsqu'une cliente réserve, ses informations sont enregistrées localement sur son navigateur.
+- À son retour sur la page de réservation, elle voit directement l'interface **"Ma Réservation"** avec le récapitulatif de son rendez-vous (Service, Date, Heure).
 
-### 2. Barre de Navigation (Navbar)
-- **Logo intelligent :** Le texte "Centre de Beauté" se cache intelligemment sur les écrans très étroits pour laisser place au nom "Zara", évitant ainsi les chevauchements.
-- **Menu Mobile :** Optimisation des espacements dans le menu déroulant.
+### 2. Modification Intuitive
+- Un bouton **"Modifier mon créneau"** permet de changer les détails du rendez-vous sans avoir à ressaisir son nom et son numéro.
+- Le formulaire est pré-rempli automatiquement avec les anciennes données.
 
-### 3. Page de Réservation
-- **Stepper compact :** Les indicateurs d'étapes (1, 2, 3) sont plus petits sur mobile pour éviter qu'ils ne se chevauchent.
-- **Grille d'horaires :** La grille des créneaux passe de 2 colonnes sur mobile à 3 colonnes sur desktop pour une utilisation optimale de l'espace.
+### 3. Annulation Responsable (Anti-Abus)
+- Une cliente peut annuler son rendez-vous elle-même en cas d'erreur.
+- **Règle de sécurité :** Pour éviter les réservations fantômes répétées, le système limite à **une seule annulation autonome**.
+- Si une deuxième annulation est tentée, le bouton est remplacé par un message invitant à contacter le salon via WhatsApp. Cela permet à Mme Fatouma de garder le contrôle sur son planning.
 
-### 4. Boutique et Footer
-- **Grille de produits :** Vérification de la grille adaptative.
-- **Pied de page :** Les liens du footer s'empilent verticalement sur mobile et se répartissent en colonnes dès que l'espace le permet.
+## Détails Techniques
+- **Persistance :** Utilisation de `localStorage` pour stocker les données de réservation et le compteur d'annulations.
+- **UI :** Intégration d'un nouveau panneau de gestion avec des retours visuels clairs (badges de statut, messages d'alerte en cas de blocage).
 
 ## Vérification effectuée
-- L'absence de barre de défilement horizontale a été vérifiée sur les résolutions standards.
-- La hiérarchie visuelle est préservée sur toutes les tailles d'écran.
+- Sauvegarde locale après confirmation : OK.
+- Pré-remplissage lors de la modification : OK.
+- Blocage après la première annulation : OK.

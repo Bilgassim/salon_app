@@ -1,5 +1,5 @@
-- `[x]` Optimiser la page d'accueil (Hero, badges, polices)
-- `[x]` Ajuster la Navbar pour les petits écrans
-- `[x]` Améliorer la grille de réservation et le widget de file d'attente
-- `[x]` Vérifier et ajuster la Boutique et les Modales
-- `[x]` Finaliser le Footer et les espacements globaux
+- `[x]` Créer les fonctions utilitaires pour le LocalStorage (sauvegarde, récupération, annulation)
+- `[x]` Implémenter l'interface "Ma Réservation" (récapitulatif et actions)
+- `[x]` Ajouter la logique de modification (pré-remplissage du formulaire)
+- `[x]` Implémenter la restriction d'annulation (limite de 1 annulation autonome)
+- `[x]` Finaliser l'intégration dans `Reservation.tsx`

@@ -1,35 +1,37 @@
-# Plan d'optimisation de la Responsivité
+# Plan d'implémentation : Gestion Responsable des Réservations
 
-Le projet dispose déjà d'une base responsive (utilisation de Tailwind CSS, menu mobile), mais certains éléments visuels (notamment sur la page d'accueil) peuvent déborder ou paraître disproportionnés sur de très petits écrans. Ce plan vise à affiner l'expérience mobile.
+Ce plan vise à permettre aux clientes de modifier ou d'annuler leur réservation de manière autonome, tout en instaurant des garde-fous pour éviter les abus (comme les annulations multiples).
 
-## Changements Proposés
+## Fonctionnalités Proposées
 
-### 1. [Optimisation de la Page d'Accueil](file:///C:/Users/dell/salon_app/src/app/pages/Home.tsx)
-- **Hero Section :**
-    - Ajuster la taille de l'image principale pour qu'elle soit fluide (`max-w-sm` au lieu de `w-80`).
-    - Gérer les badges flottants (`File d'attente`, `Prochain créneau`) qui utilisent des marges négatives et peuvent causer un défilement horizontal sur mobile.
-    - Réduire les tailles de police des titres (`h1`) sur mobile pour éviter les coupures de mots maladroites.
-- **Espacements :** Réduire les paddings verticaux (`py-24` -> `py-12`) sur mobile pour un rendu plus compact.
+### 1. Persistance Locale
+- Utilisation du `localStorage` pour enregistrer la réservation de l'utilisatrice sur son appareil.
+- Données stockées : Service, Date, Créneau, Nom, Téléphone, et un compteur d'annulations.
 
-### 2. [Affinage de la Navigation](file:///C:/Users/dell/salon_app/src/app/components/Navbar.tsx)
-- S'assurer que le menu mobile couvre bien l'écran et que les interactions sont fluides.
-- Ajuster la taille du logo ou des textes pour les petits écrans.
+### 2. Interface "Ma Réservation"
+- Si une réservation est détectée, elle s'affiche en priorité sur la page `/reservation`.
+- Affichage d'un récapitulatif clair avec deux actions : **Modifier** et **Annuler**.
 
-### 3. [Amélioration de la Page de Réservation](file:///C:/Users/dell/salon_app/src/app/pages/Reservation.tsx)
-- Le widget de file d'attente (Queue widget) peut être imposant sur mobile. On s'assurera qu'il s'adapte bien en largeur.
-- Optimiser la grille des créneaux horaires pour qu'elle reste lisible sur mobile (passer de 3 à 2 colonnes si nécessaire sur très petits écrans).
+### 3. Logique d'Annulation Responsable
+- **Règle d'or :** Une seule annulation autonome autorisée par jour/session.
+- Si l'utilisatrice tente d'annuler pour la deuxième fois, le bouton est bloqué et un message invite à contacter le salon via WhatsApp pour toute modification manuelle.
+- Demande de confirmation avant toute annulation définitive.
 
-### 4. [Boutique et Modales](file:///C:/Users/dell/salon_app/src/app/pages/Boutique.tsx)
-- Vérifier que la modale de commande (`OrderModal`) s'affiche parfaitement sur mobile (utilisation de `items-end` pour un effet "drawer").
-- Ajuster la grille des produits.
+### 4. Logique de Modification
+- Le bouton "Modifier" pré-remplit le formulaire existant et ramène l'utilisatrice à l'étape du choix du créneau ou du service.
 
-### 5. [Footer](file:///C:/Users/dell/salon_app/src/app/components/Footer.tsx)
-- Passer la grille des liens en une seule colonne sur mobile si l'espace est restreint.
+## Changements Techniques
 
-## Plan de Vérification
+### [Reservation.tsx](file:///C:/Users/dell/salon_app/src/app/pages/Reservation.tsx)
+- Ajouter des fonctions utilitaires pour gérer le `localStorage` (`saveReservation`, `getReservation`, `clearReservation`).
+- Ajouter un état `existingBooking` récupéré au montage du composant.
+- Créer un sous-composant `ManageBooking` pour l'interface de gestion.
+- Mettre à jour `handleConfirm` pour sauvegarder les données localement.
+
+## Vérification Plan
 
 ### Tests Manuels
-- Utiliser l'inspecteur de navigateur pour tester les résolutions suivantes :
-    - **Mobile (320px - 480px) :** Vérifier l'absence de scroll horizontal et la lisibilité.
-    - **Tablette (768px) :** Vérifier le passage en mode 2 colonnes.
-    - **Desktop (1024px+) :** Vérifier que le design original est préservé.
+- Effectuer une réservation complète -> Vérifier qu'elle apparaît au rechargement de la page.
+- Modifier la réservation -> Vérifier que le nouveau créneau est bien pris en compte.
+- Annuler la réservation -> Vérifier qu'elle disparaît.
+- Tenter une deuxième réservation + annulation -> Vérifier que le système bloque l'annulation et affiche le message de contact WhatsApp.
