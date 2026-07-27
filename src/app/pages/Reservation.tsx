@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { db } from "../../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { generateGoogleCalendarLink, downloadICSFile } from "../utils/calendar";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -506,7 +507,7 @@ export function Reservation() {
                     Notification envoyée à Mme Fatouma
                   </motion.div>
 
-                  <div className="bg-card rounded-2xl px-4 py-3 border border-border text-left space-y-2 mb-5">
+                  <div className="bg-card rounded-2xl px-4 py-3 border border-border text-left space-y-2 mb-6">
                     {[
                       { label: "Service", val: selectedService },
                       { label: "Date", val: formatDateFull(selectedDate) },
@@ -520,6 +521,44 @@ export function Reservation() {
                       </div>
                     ))}
                   </div>
+
+                  {/* ── Bloc Rappel Malin ── */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="bg-primary/5 rounded-2xl p-5 border border-primary/10 mb-6 text-center"
+                  >
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <Bell className="w-4 h-4 text-primary animate-bounce" />
+                      <span className="text-sm font-black text-primary" style={{ fontFamily: "Fraunces, serif" }}>Rappel Malin</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mb-4 px-2" style={{ fontFamily: "Outfit, sans-serif" }}>
+                      Ne manquez pas votre séance ! Ajoutez-la à votre agenda pour être prévenue <strong>1h avant</strong>.
+                    </p>
+
+                    <div className="flex flex-col gap-2">
+                      <motion.a
+                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        href={generateGoogleCalendarLink(selectedService, selectedDate, selectedSlot)}
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 bg-white border border-border text-foreground font-bold py-2.5 rounded-xl text-xs shadow-sm"
+                        style={{ fontFamily: "Outfit, sans-serif" }}
+                      >
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" className="w-3.5 h-3.5" alt="" />
+                        Google Calendar
+                      </motion.a>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        onClick={() => downloadICSFile(selectedService, selectedDate, selectedSlot)}
+                        className="flex items-center justify-center gap-2 bg-white border border-border text-foreground font-bold py-2.5 rounded-xl text-xs shadow-sm"
+                        style={{ fontFamily: "Outfit, sans-serif" }}
+                      >
+                        <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                        Apple / Autres Calendriers
+                      </motion.button>
+                    </div>
+                  </motion.div>
 
                   <button
                     onClick={() => {

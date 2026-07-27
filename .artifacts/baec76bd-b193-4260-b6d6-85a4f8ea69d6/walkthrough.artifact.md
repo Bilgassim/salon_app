@@ -38,3 +38,8 @@ J'ai ajouté un système complet de gestion des réservations qui permet aux cli
 ### 4. Installation Mobile (PWA)
 - Le site peut désormais être installé comme une application native.
 - Les icônes et les couleurs de thème sont configurés pour une expérience professionnelle sur l'écran d'accueil.
+
+### 5. Rappels Automatiques pour les Clientes
+- **Ajout au Calendrier :** Après confirmation, la cliente peut ajouter son rendez-vous sur Google Calendar ou Apple Calendar en un clic.
+- **Alerte Intelligente :** L'événement est automatiquement configuré avec un rappel **1h avant** la séance.
+- **Expérience Sans Friction :** Pas besoin d'application supplémentaire, tout se passe via l'agenda habituel de la cliente.

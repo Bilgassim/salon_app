@@ -6,4 +6,5 @@
 - `[x]` Configurer Firebase et connecter la base de données Firestore
 - `[x]` Créer le tableau de bord Admin (`/admin-zara`) avec synchronisation temps réel
 - `[x]` Ajouter le système de notifications push locales et alertes sonores
-- `[ ]` Configurer la PWA (manifeste et service worker) pour installation mobile
+- `[x]` Implémenter les rappels clients (Ajout au calendrier + notifications push locales)
+- `[ ]` Finaliser la PWA (icônes et manifest)
