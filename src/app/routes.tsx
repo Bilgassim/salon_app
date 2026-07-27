@@ -18,8 +18,11 @@ export const router = createHashRouter([
       { path: "boutique", element: <Boutique /> },
       { path: "contact", element: <Contact /> },
       { path: "admin-zara", element: <Admin /> },
-      // Catch-all : si on ne trouve rien, on retourne à l'accueil
-      { path: "*", element: <Navigate to="/" replace /> },
     ],
+  },
+  // Route de secours placée à l'extérieur pour plus de clarté
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
   },
 ]);
