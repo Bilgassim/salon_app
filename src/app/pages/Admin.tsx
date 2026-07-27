@@ -80,6 +80,12 @@ export function Admin() {
     }
   };
 
+  const requestPermission = async () => {
+    if (!("Notification" in window)) return;
+    const result = await Notification.requestPermission();
+    setPermission(result);
+  };
+
   return (
     <div className="pt-24 pb-12 min-h-screen bg-muted/30">
       <div className="max-w-4xl mx-auto px-6">
