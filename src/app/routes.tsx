@@ -9,6 +9,10 @@ import { Admin } from "./pages/Admin";
 
 export const router = createHashRouter([
   {
+    path: "/admin-zara",
+    element: <Admin />,
+  },
+  {
     path: "/",
     element: <Root />,
     children: [
@@ -17,10 +21,8 @@ export const router = createHashRouter([
       { path: "reservation", element: <Reservation /> },
       { path: "boutique", element: <Boutique /> },
       { path: "contact", element: <Contact /> },
-      { path: "admin-zara", element: <Admin /> },
     ],
   },
-  // Route de secours placée à l'extérieur pour plus de clarté
   {
     path: "*",
     element: <Navigate to="/" replace />,
