@@ -100,7 +100,7 @@ export function Admin() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={requestPermission}
+                onClick={() => requestPermission && requestPermission()}
                 className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-primary/20"
                 style={{ fontFamily: "Outfit, sans-serif" }}
               >
