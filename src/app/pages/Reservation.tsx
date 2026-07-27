@@ -239,6 +239,8 @@ export function Reservation() {
     try {
       // 1. Sauvegarde dans Firebase (Backend)
       const serviceInfo = SERVICES.find(s => s.name === selectedService);
+      console.log("Tentative d'envoi vers Firebase...");
+
       await addDoc(collection(db, "reservations"), {
         name,
         phone,
@@ -249,6 +251,8 @@ export function Reservation() {
         createdAt: serverTimestamp(),
         status: "confirmed"
       });
+
+      console.log("Succès Firebase !");
 
       // 2. Sauvegarde locale (Frontend)
       const bookingData: Booking = {
@@ -264,9 +268,9 @@ export function Reservation() {
       const link = buildWaLink(name, phone, selectedService, selectedSlot, selectedDate);
       setWaLink(link);
       setConfirmed(true);
-    } catch (error) {
-      console.error("Erreur lors de la réservation:", error);
-      alert("Une erreur est survenue. Veuillez réessayer ou nous contacter sur WhatsApp.");
+    } catch (error: any) {
+      console.error("Erreur complète:", error);
+      alert(`Erreur technique : ${error.message || "Impossible de contacter la base de données"}. Vérifiez que vous avez bien activé Firestore en mode test.`);
     } finally {
       setIsSubmitting(false);
     }
