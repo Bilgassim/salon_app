@@ -289,12 +289,14 @@ export function Reservation() {
 
   const handleCancel = () => {
     if (cancelCount >= 1) return;
+    if (!window.confirm("Voulez-vous vraiment annuler votre réservation ?")) return;
+
     clearBooking();
     incrementCancelCount();
     setExistingBooking(null);
     setCancelCount(prev => prev + 1);
     setShowManage(false);
-    setConfirmed(false); // Ajout crucial : on réinitialise l'état de confirmation
+    setConfirmed(false);
     setStep(1);
   };
 
@@ -450,7 +452,10 @@ export function Reservation() {
                   <div className="space-y-3">
                     <motion.button
                       whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                      onClick={handleModify}
+                      onClick={() => {
+                        setConfirmed(false); // On quitte l'écran de succès pour le formulaire
+                        handleModify();
+                      }}
                       className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold py-3.5 rounded-xl text-sm"
                       style={{ fontFamily: "Outfit, sans-serif" }}
                     >
@@ -459,7 +464,7 @@ export function Reservation() {
 
                     {cancelCount < 1 ? (
                       <button
-                        onClick={() => { if(window.confirm("Voulez-vous vraiment annuler votre réservation ?")) handleCancel(); }}
+                        onClick={handleCancel}
                         className="w-full flex items-center justify-center gap-2 text-red-500 font-bold py-3 text-sm hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors"
                         style={{ fontFamily: "Outfit, sans-serif" }}
                       >
@@ -472,7 +477,7 @@ export function Reservation() {
                           <span className="text-xs font-bold" style={{ fontFamily: "Outfit, sans-serif" }}>Annulation bloquée</span>
                         </div>
                         <p className="text-[11px] text-amber-600 dark:text-amber-500 leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>
-                          Vous avez déjà annulé une réservation aujourd'hui. Pour toute nouvelle modification, veuillez nous contacter directement sur WhatsApp.
+                          Vous avez déjà annulé une réservation. Pour toute nouvelle modification, veuillez nous contacter directement sur WhatsApp.
                         </p>
                         <a
                           href={`https://wa.me/${WA_OWNER}`}
@@ -485,7 +490,14 @@ export function Reservation() {
                   </div>
 
                   <button
-                    onClick={() => setShowManage(false)}
+                    onClick={() => {
+                      setConfirmed(false);
+                      setShowManage(false);
+                      setStep(1);
+                      setName(""); setPhone(""); setPhoneError("");
+                      setSelectedService("");
+                      resetSlot();
+                    }}
                     className="w-full mt-8 text-xs text-muted-foreground hover:text-foreground font-semibold"
                   >
                     Faire une autre réservation distincte
@@ -564,6 +576,24 @@ export function Reservation() {
                     </div>
                   </motion.div>
 
+                  <div className="border-t border-border pt-6 mt-6 space-y-3">
+                    <button
+                      onClick={handleModify}
+                      className="w-full flex items-center justify-center gap-2 bg-secondary text-primary font-bold py-3 rounded-xl text-sm"
+                    >
+                      <Pencil className="w-4 h-4" /> Modifier ce rendez-vous
+                    </button>
+
+                    {cancelCount < 1 && (
+                      <button
+                        onClick={handleCancel}
+                        className="w-full text-xs text-red-500 font-semibold hover:underline"
+                      >
+                        Annuler la réservation
+                      </button>
+                    )}
+                  </div>
+
                   <button
                     onClick={() => {
                       setConfirmed(false);
@@ -574,9 +604,9 @@ export function Reservation() {
                       setSelectedDate(d);
                       resetSlot();
                     }}
-                    className="text-sm text-primary font-semibold hover:underline"
+                    className="text-[10px] text-muted-foreground hover:text-foreground mt-8 block w-full"
                   >
-                    Faire une autre réservation
+                    Faire une autre réservation distincte
                   </button>
                 </motion.div>
               ) : (
