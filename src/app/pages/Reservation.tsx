@@ -284,11 +284,12 @@ export function Reservation() {
     setSelectedSlot(existingBooking.slot);
     setSelectedDate(new Date(existingBooking.date));
     setShowManage(false);
+    setConfirmed(false); // Réinitialise l'état pour afficher le formulaire
     setStep(2); // On ramène à l'étape du créneau
   };
 
   const handleCancel = () => {
-    if (cancelCount >= 1) return;
+    if (cancelCount >= 2) return; // Limite à 2 annulations autonomes
     if (!window.confirm("Voulez-vous vraiment annuler votre réservation ?")) return;
 
     clearBooking();
@@ -411,99 +412,8 @@ export function Reservation() {
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeRight}
               className="bg-muted rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-8 border border-border md:sticky md:top-24"
             >
-              {existingBooking && showManage ? (
-                /* ── Interface de gestion de réservation existante ── */
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Calendar className="w-4 h-4 text-primary" />
-                    </div>
-                    <h3 className="font-black text-xl text-foreground" style={{ fontFamily: "Fraunces, serif" }}>Ma Réservation</h3>
-                  </div>
-
-                  <div className="bg-card rounded-2xl p-5 border border-border shadow-sm mb-6 space-y-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1" style={{ fontFamily: "DM Mono, monospace" }}>Service</div>
-                        <div className="text-lg font-black text-foreground" style={{ fontFamily: "Fraunces, serif" }}>{existingBooking.service}</div>
-                      </div>
-                      <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-[10px] font-bold px-2 py-1 rounded-full border border-green-200 dark:border-green-800">
-                        Confirmé
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
-                      <div>
-                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5" style={{ fontFamily: "DM Mono, monospace" }}>Date</div>
-                        <div className="text-sm font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>{formatDateLabel(new Date(existingBooking.date))}</div>
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5" style={{ fontFamily: "DM Mono, monospace" }}>Heure</div>
-                        <div className="text-sm font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>{existingBooking.slot}</div>
-                      </div>
-                    </div>
-
-                    <div className="pt-4 border-t border-border">
-                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5" style={{ fontFamily: "DM Mono, monospace" }}>Cliente</div>
-                      <div className="text-sm font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>{existingBooking.name}</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        setConfirmed(false); // On quitte l'écran de succès pour le formulaire
-                        handleModify();
-                      }}
-                      className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold py-3.5 rounded-xl text-sm"
-                      style={{ fontFamily: "Outfit, sans-serif" }}
-                    >
-                      <Pencil className="w-4 h-4" /> Modifier mon créneau
-                    </motion.button>
-
-                    {cancelCount < 1 ? (
-                      <button
-                        onClick={handleCancel}
-                        className="w-full flex items-center justify-center gap-2 text-red-500 font-bold py-3 text-sm hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors"
-                        style={{ fontFamily: "Outfit, sans-serif" }}
-                      >
-                        <X className="w-4 h-4" /> Annuler la réservation
-                      </button>
-                    ) : (
-                      <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-                        <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 mb-1.5">
-                          <AlertCircle className="w-4 h-4" />
-                          <span className="text-xs font-bold" style={{ fontFamily: "Outfit, sans-serif" }}>Annulation bloquée</span>
-                        </div>
-                        <p className="text-[11px] text-amber-600 dark:text-amber-500 leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>
-                          Vous avez déjà annulé une réservation. Pour toute nouvelle modification, veuillez nous contacter directement sur WhatsApp.
-                        </p>
-                        <a
-                          href={`https://wa.me/${WA_OWNER}`}
-                          className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5" /> Contacter le salon
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setConfirmed(false);
-                      setShowManage(false);
-                      setStep(1);
-                      setName(""); setPhone(""); setPhoneError("");
-                      setSelectedService("");
-                      resetSlot();
-                    }}
-                    className="w-full mt-8 text-xs text-muted-foreground hover:text-foreground font-semibold"
-                  >
-                    Faire une autre réservation distincte
-                  </button>
-                </motion.div>
-              ) : confirmed ? (
+              {confirmed ? (
+                /* ── Interface de succès (immédiat après réservation) ── */
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
                   <motion.div
                     initial={{ scale: 0 }} animate={{ scale: 1 }}
@@ -584,7 +494,7 @@ export function Reservation() {
                       <Pencil className="w-4 h-4" /> Modifier ce rendez-vous
                     </button>
 
-                    {cancelCount < 1 && (
+                    {cancelCount < 2 && (
                       <button
                         onClick={handleCancel}
                         className="w-full text-xs text-red-500 font-semibold hover:underline"
@@ -605,6 +515,94 @@ export function Reservation() {
                       resetSlot();
                     }}
                     className="text-[10px] text-muted-foreground hover:text-foreground mt-8 block w-full"
+                  >
+                    Faire une autre réservation distincte
+                  </button>
+                </motion.div>
+              ) : existingBooking && showManage ? (
+                /* ── Interface de gestion de réservation existante ── */
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-primary" />
+                    </div>
+                    <h3 className="font-black text-xl text-foreground" style={{ fontFamily: "Fraunces, serif" }}>Ma Réservation</h3>
+                  </div>
+
+                  <div className="bg-card rounded-2xl p-5 border border-border shadow-sm mb-6 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1" style={{ fontFamily: "DM Mono, monospace" }}>Service</div>
+                        <div className="text-lg font-black text-foreground" style={{ fontFamily: "Fraunces, serif" }}>{existingBooking.service}</div>
+                      </div>
+                      <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-[10px] font-bold px-2 py-1 rounded-full border border-green-200 dark:border-green-800">
+                        Confirmé
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+                      <div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5" style={{ fontFamily: "DM Mono, monospace" }}>Date</div>
+                        <div className="text-sm font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>{formatDateLabel(new Date(existingBooking.date))}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5" style={{ fontFamily: "DM Mono, monospace" }}>Heure</div>
+                        <div className="text-sm font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>{existingBooking.slot}</div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-border">
+                      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5" style={{ fontFamily: "DM Mono, monospace" }}>Cliente</div>
+                      <div className="text-sm font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>{existingBooking.name}</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                      onClick={handleModify}
+                      className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold py-3.5 rounded-xl text-sm"
+                      style={{ fontFamily: "Outfit, sans-serif" }}
+                    >
+                      <Pencil className="w-4 h-4" /> Modifier mon créneau
+                    </motion.button>
+
+                    {cancelCount < 2 ? (
+                      <button
+                        onClick={handleCancel}
+                        className="w-full flex items-center justify-center gap-2 text-red-500 font-bold py-3 text-sm hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors"
+                        style={{ fontFamily: "Outfit, sans-serif" }}
+                      >
+                        <X className="w-4 h-4" /> Annuler la réservation
+                      </button>
+                    ) : (
+                      <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                        <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 mb-1.5">
+                          <AlertCircle className="w-4 h-4" />
+                          <span className="text-xs font-bold" style={{ fontFamily: "Outfit, sans-serif" }}>Annulations limitées</span>
+                        </div>
+                        <p className="text-[11px] text-amber-600 dark:text-amber-500 leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>
+                          Vous avez atteint la limite de 2 annulations autonomes. Pour toute nouvelle modification, veuillez nous contacter sur WhatsApp.
+                        </p>
+                        <a
+                          href={`https://wa.me/${WA_OWNER}`}
+                          className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" /> Contacter le salon
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setShowManage(false);
+                      setStep(1);
+                      setName(""); setPhone(""); setPhoneError("");
+                      setSelectedService("");
+                      resetSlot();
+                    }}
+                    className="w-full mt-8 text-xs text-muted-foreground hover:text-foreground font-semibold"
                   >
                     Faire une autre réservation distincte
                   </button>

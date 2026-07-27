@@ -7,4 +7,5 @@
 - `[x]` Créer le tableau de bord Admin (`/admin-zara`) avec synchronisation temps réel
 - `[x]` Ajouter le système de notifications push locales et alertes sonores
 - `[x]` Implémenter les rappels clients (Ajout au calendrier + notifications push locales)
+- `[x]` Optimiser la logique de modification/annulation (Priorité succès, limite de 2 annulations)
 - `[ ]` Finaliser la PWA (icônes et manifest)
