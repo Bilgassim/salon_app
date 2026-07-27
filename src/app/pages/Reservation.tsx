@@ -6,8 +6,21 @@ import {
   ChevronRight, Wifi, AlertCircle, Pencil, X, MessageCircle, ChevronLeft, Loader2,
 } from "lucide-react";
 import { db } from "../../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, query, where, onSnapshot, orderBy, updateDoc, doc } from "firebase/firestore";
 import { generateGoogleCalendarLink, downloadICSFile } from "../utils/calendar";
+import { useTheme } from "../components/ThemeProvider";
+
+// ─── Types ───
+type ReservationData = {
+  id?: string;
+  name: string;
+  phone: string;
+  service: string;
+  slot: string;
+  date: string;
+  status: "confirmed" | "completed" | "cancelled";
+  createdAt?: any;
+};
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -47,19 +60,8 @@ const TIMESLOTS = [
   { time: "19:30", available: true },
 ];
 
-const EXISTING_RESERVATIONS = [
-  { name: "Aïssatou D.", service: "Tresses", slot: "11:00", pos: 1 },
-  { name: "Mariam K.", service: "Manucure", slot: "11:30", pos: 2 },
-  { name: "Fatou B.", service: "Soins Cheveux", slot: "12:30", pos: 3 },
-];
-
 // Créneaux structurellement indisponibles (maintenance, pause…)
 const BLOCKED_SLOTS = new Set(TIMESLOTS.filter((s) => !s.available).map((s) => s.time));
-// Créneaux réservés aujourd'hui
-const TODAY_TAKEN = new Set([
-  ...BLOCKED_SLOTS,
-  ...EXISTING_RESERVATIONS.map((r) => r.slot),
-]);
 
 // ─── Helpers date/heure ───────────────────────────────────────────────────────
 
@@ -81,10 +83,13 @@ function isPastSlot(time: string, date: Date): boolean {
   return slotToMins(time) <= nowMins;
 }
 
-function getTakenSlots(date: Date): Set<string> {
+function getTakenSlots(date: Date, todayConfirmed: string[]): Set<string> {
   const now = new Date();
-  if (isSameDay(date, now)) return TODAY_TAKEN;
-  return BLOCKED_SLOTS;
+  const taken = new Set(BLOCKED_SLOTS);
+  if (isSameDay(date, now)) {
+    todayConfirmed.forEach(slot => taken.add(slot));
+  }
+  return taken;
 }
 
 function formatDateLabel(d: Date): string {
@@ -128,6 +133,7 @@ const WA_OWNER = "212710862027";
 // ─── Local Storage Helpers ───────────────────────────────────────────────────
 
 type Booking = {
+  id: string; // Firebase Document ID
   service: string;
   date: string; // ISO string
   slot: string;
@@ -177,10 +183,38 @@ export function Reservation() {
   const [step, setStep] = useState(preselected ? 2 : 1);
   const [selectedService, setSelectedService] = useState(preselected);
 
+  // Gestion de la file d'attente réelle
+  const [queue, setQueue] = useState<ReservationData[]>([]);
+  const [todayConfirmedSlots, setTodayConfirmedSlots] = useState<string[]>([]);
+
   // Gestion de la réservation existante
   const [existingBooking, setExistingBooking] = useState<Booking | null>(null);
   const [cancelCount, setCancelCount] = useState(0);
   const [showManage, setShowManage] = useState(true);
+
+  // Écoute en temps réel de la file d'attente (Uniquement confirmé pour aujourd'hui)
+  useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayISO = today.toISOString().split("T")[0];
+
+    const q = query(
+      collection(db, "reservations"),
+      where("status", "==", "confirmed"),
+      orderBy("createdAt", "asc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() } as ReservationData))
+        .filter(res => res.date.startsWith(todayISO)); // Filtrer par jour côté client car Firestore index complexe
+
+      setQueue(data);
+      setTodayConfirmedSlots(data.map(r => r.slot));
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     setExistingBooking(getBooking());
@@ -205,8 +239,8 @@ export function Reservation() {
   const [waLink, setWaLink] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const takenSlots = getTakenSlots(selectedDate);
-  const queuePos = confirmed ? EXISTING_RESERVATIONS.length + 1 : null;
+  const takenSlots = getTakenSlots(selectedDate, todayConfirmedSlots);
+  const myQueuePos = queue.findIndex(r => r.id === existingBooking?.id) + 1;
   const DAYS = getNext7Days();
 
   // Validation horaire personnalisé
@@ -241,7 +275,7 @@ export function Reservation() {
       const serviceInfo = SERVICES.find(s => s.name === selectedService);
       console.log("Tentative d'envoi vers Firebase...");
 
-      await addDoc(collection(db, "reservations"), {
+      const docRef = await addDoc(collection(db, "reservations"), {
         name,
         phone,
         service: selectedService,
@@ -252,10 +286,11 @@ export function Reservation() {
         status: "confirmed"
       });
 
-      console.log("Succès Firebase !");
+      console.log("Succès Firebase ! ID:", docRef.id);
 
       // 2. Sauvegarde locale (Frontend)
       const bookingData: Booking = {
+        id: docRef.id,
         name,
         phone,
         service: selectedService,
@@ -288,17 +323,27 @@ export function Reservation() {
     setStep(2); // On ramène à l'étape du créneau
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (cancelCount >= 2) return; // Limite à 2 annulations autonomes
     if (!window.confirm("Voulez-vous vraiment annuler votre réservation ?")) return;
 
-    clearBooking();
-    incrementCancelCount();
-    setExistingBooking(null);
-    setCancelCount(prev => prev + 1);
-    setShowManage(false);
-    setConfirmed(false);
-    setStep(1);
+    try {
+      if (existingBooking?.id) {
+        await updateDoc(doc(db, "reservations", existingBooking.id), {
+          status: "cancelled"
+        });
+      }
+
+      clearBooking();
+      incrementCancelCount();
+      setExistingBooking(null);
+      setCancelCount(prev => prev + 1);
+      setShowManage(false);
+      setConfirmed(false);
+      setStep(1);
+    } catch (error) {
+      console.error("Erreur annulation:", error);
+    }
   };
 
   const resetSlot = () => {
@@ -368,36 +413,28 @@ export function Reservation() {
                 </div>
 
                 <div className="space-y-2 mb-4">
-                  {EXISTING_RESERVATIONS.map((r) => (
-                    <div key={r.pos} className="flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2">
-                      <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-black">{r.pos}</div>
+                  {queue.map((r, idx) => (
+                    <div key={r.id} className="flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2">
+                      <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-black">
+                        {idx + 1}
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold text-white truncate">{r.name}</div>
+                        <div className="text-xs font-semibold text-white truncate">
+                          {r.id === existingBooking?.id ? "Vous" : r.name}
+                        </div>
                         <div className="text-[10px] text-blue-200">{r.service} · {r.slot}</div>
                       </div>
                       <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-blue-100 font-semibold">En attente</span>
                     </div>
                   ))}
 
-                  {confirmed && queuePos !== null ? (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                      transition={{ type: "spring", stiffness: 200 }}
-                      className="flex items-center gap-3 bg-white/20 border border-white/40 rounded-xl px-3 py-2"
-                    >
-                      <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs font-black text-primary">{queuePos}</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-bold text-white">Vous</div>
-                        <div className="text-[10px] text-blue-200">{selectedService} · {selectedSlot}</div>
-                      </div>
-                      <span className="text-[10px] bg-white text-primary px-2 py-0.5 rounded-full font-bold">Confirmée</span>
-                    </motion.div>
-                  ) : (
+                  {/* Slot "Vide" si aucune réservation */}
+                  {queue.length === 0 && (
                     <div className="flex items-center gap-3 bg-white/5 border border-dashed border-white/20 rounded-xl px-3 py-2">
                       <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-black text-blue-200">
-                        {EXISTING_RESERVATIONS.length + 1}
+                        1
                       </div>
-                      <div className="text-xs text-blue-200/60 italic">Votre place après réservation</div>
+                      <div className="text-xs text-blue-200/60 italic">La file d'attente est vide</div>
                     </div>
                   )}
                 </div>

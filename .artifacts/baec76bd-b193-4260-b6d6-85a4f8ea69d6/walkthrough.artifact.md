@@ -1,45 +1,35 @@
-# Walkthrough - Gestion Responsable des Réservations
+# Walkthrough - File d'attente Dynamique & Gestion Totale Admin
 
-J'ai ajouté un système complet de gestion des réservations qui permet aux clientes d'être plus autonomes tout en garantissant le sérieux des rendez-vous pour le salon.
+J'ai transformé la file d'attente "fictive" en un système **100% réel et synchronisé** avec votre base de données Firebase.
 
-## Nouvelles Fonctionnalités
+## Changements Majeurs
 
-### 1. Reconnaissance Automatique
-- Lorsqu'une cliente réserve, ses informations sont enregistrées localement sur son navigateur.
-- À son retour sur la page de réservation, elle voit directement l'interface **"Ma Réservation"** avec le récapitulatif de son rendez-vous (Service, Date, Heure).
+### 1. File d'attente en temps réel (Côté Client)
+- **Données Réelles :** Les personnages fictifs ont été supprimés. Désormais, la file d'attente n'affiche que les **vrais clients** qui ont réservé pour aujourd'hui via le site.
+- **Synchronisation :** Si vous validez un client sur votre tableau de bord, il disparaît instantanément de la file d'attente de tout le monde.
+- **Identification "Vous" :** Le client voit sa propre position mise en avant par le mot "Vous" dans la file.
 
-### 2. Modification Intuitive
-- Un bouton **"Modifier mon créneau"** permet de changer les détails du rendez-vous sans avoir à ressaisir son nom et son numéro.
-- Le formulaire est pré-rempli automatiquement avec les anciennes données.
+### 2. Tableau de Bord Admin Amélioré (`/admin-zara`)
+- **Numérotation des Rangs :** Chaque client a désormais son numéro de rang (RANG #1, RANG #2...) basé sur l'ordre d'arrivée. C'est l'ordre dans lequel vous devez les servir.
+- **Actions de Gestion :**
+    - **Bouton "Terminer" :** Une fois la prestation finie, cliquez ici. Le client est marqué comme "Terminé" en base de données et libère sa place dans la file d'attente.
+    - **Bouton "Supprimer" :** Pour effacer définitivement une erreur ou une réservation indésirable.
+- **Tri Chronologique :** Les clients sont classés du plus ancien au plus récent (le premier en haut est le prochain à servir).
 
-### 3. Annulation Responsable (Anti-Abus)
-- Une cliente peut annuler son rendez-vous elle-même en cas d'erreur.
-- **Règle de sécurité :** Pour éviter les réservations fantômes répétées, le système limite à **une seule annulation autonome**.
-- Si une deuxième annulation est tentée, le bouton est remplacé par un message invitant à contacter le salon via WhatsApp. Cela permet à Mme Fatouma de garder le contrôle sur son planning.
+### 3. Annulation Synchronisée
+- Lorsqu'un client annule sa réservation depuis son téléphone, son bloc **disparaît automatiquement** de votre tableau de bord admin et de la file d'attente publique.
 
-## Détails Techniques
-- **Persistance :** Utilisation de `localStorage` pour stocker les données de réservation et le compteur d'annulations.
-- **UI :** Intégration d'un nouveau panneau de gestion avec des retours visuels clairs (badges de statut, messages d'alerte en cas de blocage).
+## Comment tester ?
+1. Ouvrez la page de réservation sur un téléphone et réservez.
+2. Ouvrez la page `/admin-zara` sur votre ordinateur : vous verrez le client apparaître avec le **RANG #1**.
+3. Cliquez sur **"Terminer"** sur l'ordinateur : vous verrez le client disparaître instantanément du téléphone.
 
-## Nouvelles Fonctionnalités Backend & Admin
+---
 
-### 1. Sauvegarde en Temps Réel (Firebase)
-- Toutes les réservations sont désormais enregistrées de manière sécurisée dans une base de données **Firestore**.
-- Cela garantit qu'aucune donnée n'est perdue, même si l'utilisateur ferme son navigateur.
-
-### 2. Tableau de Bord Admin (`/admin-zara`)
-- Une page exclusive pour la gérante permet de voir toutes les réservations arriver en temps réel.
-- Le design respecte la charte graphique (Fraunces/Outfit) et est optimisé pour mobile.
-
-### 3. Système d'Alertes "Discrètes"
-- **Alerte Sonore :** Un "ping" retentit dès qu'un nouveau rendez-vous est pris.
-- **Notifications Push :** Un bouton "Activer les alertes" sur le tableau de bord permet de recevoir des notifications système directement sur le téléphone/ordinateur, même si l'onglet est en arrière-plan.
-
-### 4. Installation Mobile (PWA)
-- Le site peut désormais être installé comme une application native.
-- Les icônes et les couleurs de thème sont configurés pour une expérience professionnelle sur l'écran d'accueil.
-
-### 5. Rappels Automatiques pour les Clientes
-- **Ajout au Calendrier :** Après confirmation, la cliente peut ajouter son rendez-vous sur Google Calendar ou Apple Calendar en un clic.
-- **Alerte Intelligente :** L'événement est automatiquement configuré avec un rappel **1h avant** la séance.
-- **Expérience Sans Friction :** Pas besoin d'application supplémentaire, tout se passe via l'agenda habituel de la cliente.
+### Pour mettre à jour votre site :
+```powershell
+git add .
+git commit -m "feat: dynamic real-time queue and full admin control"
+git push origin main
+npm run deploy
+```

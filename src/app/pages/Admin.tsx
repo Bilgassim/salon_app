@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { db } from "../../firebase";
-import { collection, query, orderBy, onSnapshot, Timestamp } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, Timestamp, doc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { motion, AnimatePresence } from "motion/react";
-import { Calendar, Clock, User, Phone, Scissors, CreditCard, Bell } from "lucide-react";
+import { Calendar, Clock, User, Phone, Scissors, CreditCard, Bell, CheckCircle2, Trash2 } from "lucide-react";
 
 type Reservation = {
   id: string;
@@ -12,6 +12,7 @@ type Reservation = {
   price: string;
   slot: string;
   date: string;
+  status: "confirmed" | "completed" | "cancelled";
   createdAt: Timestamp;
 };
 
@@ -25,7 +26,11 @@ export function Admin() {
       setPermission(Notification.permission);
     }
 
-    const q = query(collection(db, "reservations"), orderBy("createdAt", "desc"));
+    const q = query(
+      collection(db, "reservations"),
+      where("status", "==", "confirmed"),
+      orderBy("createdAt", "asc")
+    );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({
@@ -35,13 +40,13 @@ export function Admin() {
 
       // Si une nouvelle réservation arrive
       if (!loading && docs.length > reservations.length) {
-        const newRes = docs[0]; // La plus récente grâce au orderBy desc
+        const newRes = docs[docs.length - 1]; // La plus récente à cause du orderBy asc
 
         // 1. Alerte sonore
         const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
         audio.play().catch(e => console.log("Audio play blocked", e));
 
-        // 2. Notification système (Push locale)
+        // 2. Notification système
         if (Notification.permission === "granted") {
           new Notification("Nouvelle Réservation ! 🔔", {
             body: `${newRes.name} - ${newRes.service} à ${newRes.slot}`,
@@ -57,10 +62,22 @@ export function Admin() {
     return () => unsubscribe();
   }, [loading, reservations.length]);
 
-  const requestPermission = async () => {
-    if (!("Notification" in window)) return;
-    const result = await Notification.requestPermission();
-    setPermission(result);
+  const handleComplete = async (id: string) => {
+    if (!window.confirm("Marquer comme terminée ? Le client quittera la file d'attente.")) return;
+    try {
+      await updateDoc(doc(db, "reservations", id), { status: "completed" });
+    } catch (error) {
+      console.error("Erreur mise à jour:", error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Supprimer définitivement cette réservation ?")) return;
+    try {
+      await deleteDoc(doc(db, "reservations", id));
+    } catch (error) {
+      console.error("Erreur suppression:", error);
+    }
   };
 
   return (
@@ -98,15 +115,20 @@ export function Admin() {
         ) : (
           <div className="grid gap-4">
             <AnimatePresence mode="popLayout">
-              {reservations.map((res) => (
+              {reservations.map((res, index) => (
                 <motion.div
                   key={res.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow"
+                  className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  {/* Badge de Rang */}
+                  <div className="absolute top-0 left-0 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-br-xl z-10">
+                    RANG #{index + 1}
+                  </div>
+
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -133,11 +155,28 @@ export function Admin() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between md:flex-col md:items-end gap-2 border-t md:border-t-0 pt-3 md:pt-0 border-border">
+                    <div className="flex flex-col items-end gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-border">
                       <div className="flex items-center gap-1.5 text-primary font-black text-lg" style={{ fontFamily: "Fraunces, serif" }}>
                         <CreditCard className="w-4 h-4" /> {res.price}
                       </div>
-                      <div className="text-[10px] text-muted-foreground font-mono">
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleComplete(res.id)}
+                          className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Terminer
+                        </button>
+                        <button
+                          onClick={() => handleDelete(res.id)}
+                          className="flex items-center gap-1.5 bg-muted hover:bg-red-50 text-muted-foreground hover:text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border border-border"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Supprimer
+                        </button>
+                      </div>
+
+                      <div className="text-[9px] text-muted-foreground font-mono uppercase tracking-tighter">
                         Reçu à : {res.createdAt?.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>

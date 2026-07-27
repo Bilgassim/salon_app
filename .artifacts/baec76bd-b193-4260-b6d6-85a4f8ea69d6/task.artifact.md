@@ -6,6 +6,10 @@
 - `[x]` Configurer Firebase et connecter la base de données Firestore
 - `[x]` Créer le tableau de bord Admin (`/admin-zara`) avec synchronisation temps réel
 - `[x]` Ajouter le système de notifications push locales et alertes sonores
-- `[x]` Implémenter les rappels clients (Ajout au calendrier + notifications push locales)
-- `[x]` Optimiser la logique de modification/annulation (Priorité succès, limite de 2 annulations)
+- `[x]` [Reservation.tsx] Connecter le widget File d'attente à Firestore (données réelles)
+- `[x]` [Reservation.tsx] Enregistrer l'ID du document Firebase dans le localStorage
+- `[x]` [Reservation.tsx] Lier le bouton Annuler à la suppression en base de données
+- `[x]` [Admin.tsx] Afficher le rang des clients (1, 2, 3...)
+- `[x]` [Admin.tsx] Ajouter les boutons "Terminer" (Passer) et "Supprimer"
+- `[x]` [Admin.tsx] Implémenter la logique de mise à jour du statut dans Firebase
 - `[ ]` Finaliser la PWA (icônes et manifest)
