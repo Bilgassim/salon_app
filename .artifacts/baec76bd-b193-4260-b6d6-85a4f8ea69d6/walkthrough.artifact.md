@@ -21,7 +21,20 @@ J'ai ajouté un système complet de gestion des réservations qui permet aux cli
 - **Persistance :** Utilisation de `localStorage` pour stocker les données de réservation et le compteur d'annulations.
 - **UI :** Intégration d'un nouveau panneau de gestion avec des retours visuels clairs (badges de statut, messages d'alerte en cas de blocage).
 
-## Vérification effectuée
-- Sauvegarde locale après confirmation : OK.
-- Pré-remplissage lors de la modification : OK.
-- Blocage après la première annulation : OK.
+## Nouvelles Fonctionnalités Backend & Admin
+
+### 1. Sauvegarde en Temps Réel (Firebase)
+- Toutes les réservations sont désormais enregistrées de manière sécurisée dans une base de données **Firestore**.
+- Cela garantit qu'aucune donnée n'est perdue, même si l'utilisateur ferme son navigateur.
+
+### 2. Tableau de Bord Admin (`/admin-zara`)
+- Une page exclusive pour la gérante permet de voir toutes les réservations arriver en temps réel.
+- Le design respecte la charte graphique (Fraunces/Outfit) et est optimisé pour mobile.
+
+### 3. Système d'Alertes "Discrètes"
+- **Alerte Sonore :** Un "ping" retentit dès qu'un nouveau rendez-vous est pris.
+- **Notifications Push :** Un bouton "Activer les alertes" sur le tableau de bord permet de recevoir des notifications système directement sur le téléphone/ordinateur, même si l'onglet est en arrière-plan.
+
+### 4. Installation Mobile (PWA)
+- Le site peut désormais être installé comme une application native.
+- Les icônes et les couleurs de thème sont configurés pour une expérience professionnelle sur l'écran d'accueil.

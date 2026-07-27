@@ -1,37 +1,31 @@
-# Plan d'implémentation : Gestion Responsable des Réservations
+# Plan d'implémentation : Intégration Firebase & PWA
 
-Ce plan vise à permettre aux clientes de modifier ou d'annuler leur réservation de manière autonome, tout en instaurant des garde-fous pour éviter les abus (comme les annulations multiples).
-
-## Fonctionnalités Proposées
-
-### 1. Persistance Locale
-- Utilisation du `localStorage` pour enregistrer la réservation de l'utilisatrice sur son appareil.
-- Données stockées : Service, Date, Créneau, Nom, Téléphone, et un compteur d'annulations.
-
-### 2. Interface "Ma Réservation"
-- Si une réservation est détectée, elle s'affiche en priorité sur la page `/reservation`.
-- Affichage d'un récapitulatif clair avec deux actions : **Modifier** et **Annuler**.
-
-### 3. Logique d'Annulation Responsable
-- **Règle d'or :** Une seule annulation autonome autorisée par jour/session.
-- Si l'utilisatrice tente d'annuler pour la deuxième fois, le bouton est bloqué et un message invite à contacter le salon via WhatsApp pour toute modification manuelle.
-- Demande de confirmation avant toute annulation définitive.
-
-### 4. Logique de Modification
-- Le bouton "Modifier" pré-remplit le formulaire existant et ramène l'utilisatrice à l'étape du choix du créneau ou du service.
+L'objectif est d'utiliser les clés fournies par l'utilisateur pour connecter le frontend au backend Firebase, permettant ainsi le stockage des réservations et l'envoi de notifications gratuites.
 
 ## Changements Techniques
 
-### [Reservation.tsx](file:///C:/Users/dell/salon_app/src/app/pages/Reservation.tsx)
-- Ajouter des fonctions utilitaires pour gérer le `localStorage` (`saveReservation`, `getReservation`, `clearReservation`).
-- Ajouter un état `existingBooking` récupéré au montage du composant.
-- Créer un sous-composant `ManageBooking` pour l'interface de gestion.
-- Mettre à jour `handleConfirm` pour sauvegarder les données localement.
+### 1. Installation des dépendances
+- `npm install firebase` : SDK Firebase.
+- `npm install vite-plugin-pwa -D` : Plugin pour transformer le site en application installable.
 
-## Vérification Plan
+### 2. [NOUVEAU] Configuration Firebase
+- Créer [src/firebase.ts](file:///C:/Users/dell/salon_app/src/firebase.ts) pour initialiser l'application avec les clés fournies.
+- Exposer les instances `db` (Firestore) et `messaging` (Notifications).
 
-### Tests Manuels
-- Effectuer une réservation complète -> Vérifier qu'elle apparaît au rechargement de la page.
-- Modifier la réservation -> Vérifier que le nouveau créneau est bien pris en compte.
-- Annuler la réservation -> Vérifier qu'elle disparaît.
-- Tenter une deuxième réservation + annulation -> Vérifier que le système bloque l'annulation et affiche le message de contact WhatsApp.
+### 3. [MODIFICATION] Page Réservation
+- Dans [Reservation.tsx](file:///C:/Users/dell/salon_app/src/app/pages/Reservation.tsx) :
+    - Modifier `handleConfirm` pour envoyer les données vers Firestore en plus du `localStorage`.
+    - Ajouter un état "chargement" lors de la synchronisation avec Firebase.
+
+### 4. [NOUVEAU] Service Worker & Manifest
+- Configurer [vite.config.ts](file:///C:/Users/dell/salon_app/vite.config.ts) pour générer les fichiers PWA.
+- Définir le nom de l'app, les couleurs de thème (Bleu Zara) et les icônes.
+
+### 5. [NOUVEAU] Interface Admin
+- Créer une page simple `/admin-zara` qui affiche la liste des réservations en temps réel.
+- Cette page demandera l'autorisation de notifications pour que la gérante reçoive les alertes.
+
+## Plan de Vérification
+1. Faire une réservation -> Vérifier l'apparition instantanée dans la console Firebase.
+2. Installer le site sur mobile via le bouton du navigateur.
+3. Tester la réception d'une notification push sur le bureau/mobile.

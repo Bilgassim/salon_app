@@ -3,3 +3,7 @@
 - `[x]` Ajouter la logique de modification (pré-remplissage du formulaire)
 - `[x]` Implémenter la restriction d'annulation (limite de 1 annulation autonome)
 - `[x]` Finaliser l'intégration dans `Reservation.tsx`
+- `[x]` Configurer Firebase et connecter la base de données Firestore
+- `[x]` Créer le tableau de bord Admin (`/admin-zara`) avec synchronisation temps réel
+- `[x]` Ajouter le système de notifications push locales et alertes sonores
+- `[ ]` Configurer la PWA (manifeste et service worker) pour installation mobile

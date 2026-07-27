@@ -3,8 +3,10 @@ import { useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Bell, Users, QrCode, Check, Clock, Calendar,
-  ChevronRight, Wifi, AlertCircle, Pencil, X, MessageCircle, ChevronLeft,
+  ChevronRight, Wifi, AlertCircle, Pencil, X, MessageCircle, ChevronLeft, Loader2,
 } from "lucide-react";
+import { db } from "../../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -200,6 +202,7 @@ export function Reservation() {
   const [phoneError, setPhoneError] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [waLink, setWaLink] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const takenSlots = getTakenSlots(selectedDate);
   const queuePos = confirmed ? EXISTING_RESERVATIONS.length + 1 : null;
@@ -223,27 +226,49 @@ export function Reservation() {
 
   useEffect(() => { if (phoneError) setPhoneError(""); }, [phone]);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!name || !selectedService || !selectedSlot) return;
     if (!isValidPhone(phone)) {
       setPhoneError("Numéro invalide. Saisissez un numéro valide (ex. +227 90 00 00 00).");
       return;
     }
 
-    // Sauvegarde locale
-    const bookingData: Booking = {
-      name,
-      phone,
-      service: selectedService,
-      slot: selectedSlot,
-      date: selectedDate.toISOString(),
-    };
-    saveBooking(bookingData);
-    setExistingBooking(bookingData);
+    setIsSubmitting(true);
 
-    const link = buildWaLink(name, phone, selectedService, selectedSlot, selectedDate);
-    setWaLink(link);
-    setConfirmed(true);
+    try {
+      // 1. Sauvegarde dans Firebase (Backend)
+      const serviceInfo = SERVICES.find(s => s.name === selectedService);
+      await addDoc(collection(db, "reservations"), {
+        name,
+        phone,
+        service: selectedService,
+        price: serviceInfo?.price || "À définir",
+        slot: selectedSlot,
+        date: selectedDate.toISOString(),
+        createdAt: serverTimestamp(),
+        status: "confirmed"
+      });
+
+      // 2. Sauvegarde locale (Frontend)
+      const bookingData: Booking = {
+        name,
+        phone,
+        service: selectedService,
+        slot: selectedSlot,
+        date: selectedDate.toISOString(),
+      };
+      saveBooking(bookingData);
+      setExistingBooking(bookingData);
+
+      const link = buildWaLink(name, phone, selectedService, selectedSlot, selectedDate);
+      setWaLink(link);
+      setConfirmed(true);
+    } catch (error) {
+      console.error("Erreur lors de la réservation:", error);
+      alert("Une erreur est survenue. Veuillez réessayer ou nous contacter sur WhatsApp.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleModify = () => {
@@ -258,14 +283,14 @@ export function Reservation() {
   };
 
   const handleCancel = () => {
-    if (cancelCount >= 1) return; // Sécurité supplémentaire
+    if (cancelCount >= 1) return;
     clearBooking();
     incrementCancelCount();
     setExistingBooking(null);
     setCancelCount(prev => prev + 1);
     setShowManage(false);
+    setConfirmed(false); // Ajout crucial : on réinitialise l'état de confirmation
     setStep(1);
-    // On pourrait aussi ajouter une notification "Annulé" ici
   };
 
   const resetSlot = () => {
@@ -800,9 +825,15 @@ export function Reservation() {
                         <button onClick={() => setStep(2)} className="flex-1 border border-border text-foreground font-semibold py-3 rounded-xl hover:bg-muted text-sm flex items-center justify-center gap-1">
                           <ChevronLeft className="w-4 h-4" /> Retour
                         </button>
-                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleConfirm} disabled={!name || !phone}
-                          className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-xl disabled:opacity-40 text-sm"
-                        >Confirmer</motion.button>
+                        <motion.button whileTap={{ scale: 0.97 }} onClick={handleConfirm} disabled={!name || !phone || isSubmitting}
+                          className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-xl disabled:opacity-40 text-sm flex items-center justify-center gap-2"
+                        >
+                          {isSubmitting ? (
+                            <><Loader2 className="w-4 h-4 animate-spin" /> Envoi...</>
+                          ) : (
+                            "Confirmer"
+                          )}
+                        </motion.button>
                       </div>
                     </motion.div>
                   )}
