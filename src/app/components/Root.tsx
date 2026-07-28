@@ -5,7 +5,7 @@ import { Scissors } from "lucide-react";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { ThemeProvider } from "./ThemeProvider";
-import { IOSInstallPrompt } from "./ui/IOSInstallPrompt";
+import { UnifiedInstallPrompt } from "./ui/UnifiedInstallPrompt";
 
 function PageWrapper() {
   const location = useLocation();
@@ -63,7 +63,7 @@ export function Root() {
         </main>
         <Footer />
         <FloatingReserveButton />
-        <IOSInstallPrompt />
+        <UnifiedInstallPrompt />
       </div>
     </ThemeProvider>
   );

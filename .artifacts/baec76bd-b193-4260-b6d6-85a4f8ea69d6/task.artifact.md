@@ -12,4 +12,6 @@
 - `[x]` [Admin.tsx] Afficher le rang des clients (1, 2, 3...)
 - `[x]` [Admin.tsx] Ajouter les boutons "Terminer" (Passer) et "Supprimer"
 - `[x]` [Admin.tsx] Implémenter la logique de mise à jour du statut dans Firebase
-- `[ ]` Finaliser la PWA (icônes et manifest)
+- `[x]` Configurer le Manifest "Rich UI" pour Android
+- `[x]` Créer le composant `UnifiedInstallPrompt` (iOS + Android)
+- `[x]` Finaliser l'intégration de la PWA pour tous les appareils

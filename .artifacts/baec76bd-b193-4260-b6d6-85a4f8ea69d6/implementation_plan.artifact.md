@@ -1,39 +1,37 @@
-# Plan d'implémentation : Compatibilité iPhone (iOS) & Installation PWA
+# Plan d'implémentation : Compatibilité Android & Installation "App Store"
 
-L'objectif est de permettre l'installation du site en tant qu'application sur iPhone, ce qui est nécessaire pour activer les notifications push sur iOS.
+Ce plan vise à offrir aux utilisateurs Android une expérience d'installation aussi fluide et professionnelle qu'une application téléchargée sur le Play Store, tout en conservant les optimisations faites pour l'iPhone.
 
-## Pourquoi l'iPhone ne propose pas de bouton "Télécharger" ?
-Contrairement à Android, Apple ne permet pas aux navigateurs d'afficher un bouton automatique d'installation. L'utilisateur doit obligatoirement :
-1. Utiliser **Safari**.
-2. Cliquer sur le bouton **Partager** (le carré avec une flèche vers le haut).
-3. Cliquer sur **Sur l'écran d'accueil**.
+## Stratégie pour Android (Chrome/Samsung)
+Sur Android, le processus est beaucoup plus automatisé. Nous allons utiliser l'événement `beforeinstallprompt` pour afficher un bouton "Installer" personnalisé qui déclenche l'installation native.
 
 ## Changements Proposés
 
-### 1. [HTML] Optimisation pour Apple
-- Ajouter les balises meta spécifiques à iOS dans `index.html` :
-    - `apple-mobile-web-app-capable` : Pour masquer la barre d'adresse.
-    - `apple-mobile-web-app-status-bar-style` : Pour une intégration propre.
-    - `apple-touch-icon` : Pour avoir une belle icône sur l'écran d'accueil.
+### 1. [Vite] Manifest "Rich UI"
+- Mettre à jour `vite.config.ts` pour transformer le manifeste simple en un manifeste "riche" (nécessaire pour le look App Store sur Android).
+- Ajouter une description détaillée et des placeholders pour les captures d'écran.
 
-### 2. [Vite] Restauration des Icônes PWA
-- Créer des icônes temporaires (ou utiliser un placeholder) pour que le manifeste soit valide aux yeux d'Apple.
-- Mettre à jour `vite.config.ts` pour inclure ces icônes.
+### 2. [UI] Nouveau Composant `UnifiedInstallPrompt`
+- Ce composant remplacera `IOSInstallPrompt`.
+- **Sur iPhone** : Il affichera toujours le guide visuel (Partager -> Écran d'accueil).
+- **Sur Android** : Il affichera un bouton bleu élégant **"Télécharger l'application"** qui s'active automatiquement dès que Chrome autorise l'installation.
 
-### 3. [UI] Guide d'Installation pour iPhone
-- Créer un petit composant discret `IOSInstallPrompt` qui s'affiche uniquement sur iPhone/iPad.
-- Ce composant expliquera visuellement à l'utilisateur comment installer l'app (Partager -> Écran d'accueil).
+### 3. [Logic] Gestion de l'installation native
+- Capturer l'événement d'installation de Chrome.
+- Masquer le bouton une fois que l'application est installée pour ne pas encombrer l'écran.
 
 ## Plan de Travail
 
-### [ ] Phase 1 : Meta tags & Icônes
-- Modifier `index.html` pour inclure le support Apple.
-- Configurer une icône par défaut dans `public/`.
+### [ ] Phase 1 : Manifest & Captures d'écran
+- Configurer les métadonnées de l'application dans le fichier de build.
 
-### [ ] Phase 2 : Guide visuel
-- Créer le composant d'aide à l'installation dans `src/app/components/ui/IOSInstallPrompt.tsx`.
-- L'intégrer dans `Root.tsx`.
+### [ ] Phase 2 : Développement du `UnifiedInstallPrompt`
+- Implémenter la logique `beforeinstallprompt` pour Android.
+- Unifier le design avec les polices **Fraunces** et **Outfit**.
+
+### [ ] Phase 3 : Intégration
+- Remplacer l'ancien prompt par le nouveau dans `Root.tsx`.
 
 ## Vérification
-- Ouvrir le site sur Safari iPhone -> Vérifier que l'option "Sur l'écran d'accueil" affiche bien le logo et le nom de l'app.
-- Une fois installé, vérifier que le site s'ouvre sans les barres de navigation du navigateur (plein écran).
+- **Sur Android** : Ouvrir le site, attendre quelques secondes, et vérifier l'apparition du bouton d'installation. Cliquer et vérifier que le système Android propose d'installer "Zara Beauté".
+- **Sur iPhone** : Vérifier que le guide visuel fonctionne toujours.

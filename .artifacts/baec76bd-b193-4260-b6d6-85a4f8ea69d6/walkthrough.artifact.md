@@ -19,6 +19,11 @@ J'ai transformé la file d'attente "fictive" en un système **100% réel et sync
 ### 3. Annulation Synchronisée
 - Lorsqu'un client annule sa réservation depuis son téléphone, son bloc **disparaît automatiquement** de votre tableau de bord admin et de la file d'attente publique.
 
+### 4. Installation Universelle (PWA)
+- **Sur Android :** Un bouton bleu "Télécharger l'application" apparaît désormais automatiquement. Il déclenche une installation fluide avec une interface de style "App Store".
+- **Sur iPhone :** Le guide visuel intelligent (Partager -> Écran d'accueil) est maintenu pour accompagner les utilisatrices Apple.
+- **Stand-alone :** Une fois installée, l'application s'ouvre en plein écran sans les barres du navigateur, offrant une expérience 100% native.
+
 ## Comment tester ?
 1. Ouvrez la page de réservation sur un téléphone et réservez.
 2. Ouvrez la page `/admin-zara` sur votre ordinateur : vous verrez le client apparaître avec le **RANG #1**.

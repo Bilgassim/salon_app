@@ -191,6 +191,7 @@ export function Reservation() {
   const [existingBooking, setExistingBooking] = useState<Booking | null>(null);
   const [cancelCount, setCancelCount] = useState(0);
   const [showManage, setShowManage] = useState(true);
+  const [permission, setPermission] = useState<NotificationPermission>("default");
 
   // Écoute en temps réel de la file d'attente (Uniquement confirmé pour aujourd'hui)
   useEffect(() => {
@@ -219,6 +220,9 @@ export function Reservation() {
   useEffect(() => {
     setExistingBooking(getBooking());
     setCancelCount(getCancelCount());
+    if ("Notification" in window) {
+      setPermission(Notification.permission);
+    }
   }, []);
 
   // Date — initialisée à aujourd'hui
@@ -351,6 +355,25 @@ export function Reservation() {
     setCustomTime("");
     setCustomMode(false);
     setCustomStatus("idle");
+  };
+
+  const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) {
+      alert("Votre navigateur ne supporte pas les notifications. \n\nSI VOUS ÊTES SUR IPHONE : Vous devez d'abord installer l'app en faisant 'Partager' -> 'Sur l'écran d'accueil'.");
+      return;
+    }
+
+    try {
+      const result = await Notification.requestPermission();
+      setPermission(result);
+      if (result === "denied") {
+        alert("Vous avez bloqué les notifications. Pour les réactiver, allez dans les paramètres de votre navigateur.");
+      } else if (result === "granted") {
+        alert("Alertes activées ! Vous recevrez un rappel. ✅");
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -520,6 +543,18 @@ export function Reservation() {
                         <Calendar className="w-3.5 h-3.5 text-blue-500" />
                         Apple / Autres Calendriers
                       </motion.button>
+
+                      {permission !== "granted" && (
+                        <motion.button
+                          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                          onClick={requestNotificationPermission}
+                          className="flex items-center justify-center gap-2 bg-primary/10 text-primary font-bold py-2.5 rounded-xl text-xs mt-2 border border-primary/20"
+                          style={{ fontFamily: "Outfit, sans-serif" }}
+                        >
+                          <Bell className="w-3.5 h-3.5" />
+                          M'alerter par notification
+                        </motion.button>
+                      )}
                     </div>
                   </motion.div>
 

@@ -31,10 +31,12 @@ export default defineConfig({
       manifest: {
         name: 'Centre de Beauté Zara',
         short_name: 'Zara Beauté',
-        description: 'Réservez votre séance de beauté au Centre Zara',
+        description: 'Réservez votre séance de beauté au Centre Zara : tresses, soins capillaires et manucure.',
         theme_color: '#1877f2',
         background_color: '#ffffff',
         display: 'standalone',
+        orientation: 'portrait',
+        categories: ['beauty', 'lifestyle'],
         icons: [
           {
             src: 'favicon.ico',
