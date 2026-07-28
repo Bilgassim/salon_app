@@ -32,11 +32,21 @@ export default defineConfig({
         name: 'Centre de Beauté Zara',
         short_name: 'Zara Beauté',
         description: 'Réservez votre séance de beauté au Centre Zara : tresses, soins capillaires et manucure.',
+        id: 'zara-client-app',
         theme_color: '#1877f2',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
         categories: ['beauty', 'lifestyle'],
+        shortcuts: [
+          {
+            name: "Admin",
+            short_name: "Admin",
+            description: "Tableau de bord de gestion",
+            url: "/salon_app/#/admin-zara",
+            icons: [{ src: "favicon.ico", sizes: "192x192" }]
+          }
+        ],
         icons: [
           {
             src: 'favicon.ico',

@@ -218,12 +218,50 @@ export function Reservation() {
   }, []);
 
   useEffect(() => {
-    setExistingBooking(getBooking());
+    const saved = getBooking();
+    // Si la réservation est passée, on la supprime automatiquement
+    if (saved && isPastSlot(saved.slot, new Date(saved.date))) {
+      clearBooking();
+      setExistingBooking(null);
+    } else {
+      setExistingBooking(saved);
+    }
+
     setCancelCount(getCancelCount());
     if ("Notification" in window) {
       setPermission(Notification.permission);
     }
+
+    // Vérification périodique (toutes les minutes) pour nettoyer si le temps passe
+    const interval = setInterval(() => {
+      const current = getBooking();
+      if (current && isPastSlot(current.slot, new Date(current.date))) {
+        clearBooking();
+        setExistingBooking(null);
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  // Écouteur en temps réel pour synchroniser les actions de l'Admin (Terminer/Supprimer)
+  useEffect(() => {
+    if (existingBooking?.id) {
+      const unsub = onSnapshot(doc(db, "reservations", existingBooking.id), (docSnap) => {
+        if (!docSnap.exists() || docSnap.data()?.status === "completed" || docSnap.data()?.status === "cancelled") {
+          // Si l'admin a supprimé ou terminé, on nettoie localement
+          clearBooking();
+          setExistingBooking(null);
+          setShowManage(false);
+          setConfirmed(false);
+          setStep(1);
+        }
+      }, (err) => {
+        console.error("Erreur sync admin:", err);
+      });
+      return () => unsub();
+    }
+  }, [existingBooking?.id]);
 
   // Date — initialisée à aujourd'hui
   const [selectedDate, setSelectedDate] = useState<Date>(() => {

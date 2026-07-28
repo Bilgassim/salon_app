@@ -3,6 +3,8 @@ import { db } from "../../firebase";
 import { collection, query, orderBy, onSnapshot, Timestamp, doc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { motion, AnimatePresence } from "motion/react";
 import { Calendar, Clock, User, Phone, Scissors, CreditCard, Bell, CheckCircle2, Trash2 } from "lucide-react";
+import { ManifestManager } from "../components/ManifestManager";
+import { UnifiedInstallPrompt } from "../components/ui/UnifiedInstallPrompt";
 
 type Reservation = {
   id: string;
@@ -106,6 +108,8 @@ export function Admin() {
 
   return (
     <div className="pt-24 pb-12 min-h-screen bg-muted/30">
+      <ManifestManager />
+      <UnifiedInstallPrompt />
       <div className="max-w-4xl mx-auto px-6">
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
           <div>

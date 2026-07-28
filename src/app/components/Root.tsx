@@ -6,6 +6,7 @@ import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { ThemeProvider } from "./ThemeProvider";
 import { UnifiedInstallPrompt } from "./ui/UnifiedInstallPrompt";
+import { ManifestManager } from "./ManifestManager";
 
 function PageWrapper() {
   const location = useLocation();
@@ -56,6 +57,7 @@ function FloatingReserveButton() {
 export function Root() {
   return (
     <ThemeProvider>
+      <ManifestManager />
       <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
         <main className="flex-1">

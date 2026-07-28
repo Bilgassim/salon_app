@@ -6,12 +6,10 @@
 - `[x]` Configurer Firebase et connecter la base de données Firestore
 - `[x]` Créer le tableau de bord Admin (`/admin-zara`) avec synchronisation temps réel
 - `[x]` Ajouter le système de notifications push locales et alertes sonores
-- `[x]` [Reservation.tsx] Connecter le widget File d'attente à Firestore (données réelles)
-- `[x]` [Reservation.tsx] Enregistrer l'ID du document Firebase dans le localStorage
-- `[x]` [Reservation.tsx] Lier le bouton Annuler à la suppression en base de données
-- `[x]` [Admin.tsx] Afficher le rang des clients (1, 2, 3...)
-- `[x]` [Admin.tsx] Ajouter les boutons "Terminer" (Passer) et "Supprimer"
-- `[x]` [Admin.tsx] Implémenter la logique de mise à jour du statut dans Firebase
-- `[x]` Configurer le Manifest "Rich UI" pour Android
-- `[x]` Créer le composant `UnifiedInstallPrompt` (iOS + Android)
-- `[x]` Finaliser l'intégration de la PWA pour tous les appareils
+- `[x]` Créer le fichier `public/manifest-admin.webmanifest` pour l'application Admin
+- `[x]` Ajouter des raccourcis (Shortcuts) dans `vite.config.ts`
+- `[x]` Créer le composant `ManifestManager` pour basculer le manifeste selon l'URL
+- `[x]` Intégrer `ManifestManager` dans le layout principal et la page Admin
+- `[ ]` Déployer et vérifier la double installation
+- `[x]` Implémenter la réinitialisation automatique des réservations passées (Interface client)
+- `[x]` [Reservation.tsx] Ajouter l'écouteur temps réel sur la réservation en cours (Sync Admin -> Client)
