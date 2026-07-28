@@ -27,7 +27,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['favicon.ico'],
       manifest: {
         name: 'Centre de Beauté Zara',
         short_name: 'Zara Beauté',
@@ -35,24 +35,7 @@ export default defineConfig({
         theme_color: '#1877f2',
         background_color: '#ffffff',
         display: 'standalone',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
+        icons: [] // On retire temporairement les icônes pour éviter les erreurs 404
       }
     })
   ],

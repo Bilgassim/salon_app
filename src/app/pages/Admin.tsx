@@ -38,29 +38,33 @@ export function Admin() {
         ...doc.data()
       })) as Reservation[];
 
-      // Si une nouvelle réservation arrive
-      if (!loading && docs.length > reservations.length) {
-        const newRes = docs[docs.length - 1]; // La plus récente à cause du orderBy asc
+      // Gestion des nouvelles réservations pour alertes (sans boucle infinie)
+      setReservations(prev => {
+        if (!loading && docs.length > prev.length) {
+          const newRes = docs[docs.length - 1];
 
-        // 1. Alerte sonore
-        const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-        audio.play().catch(e => console.log("Audio play blocked", e));
+          // Alerte sonore
+          const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+          audio.play().catch(e => console.log("Audio blocked", e));
 
-        // 2. Notification système
-        if (Notification.permission === "granted") {
-          new Notification("Nouvelle Réservation ! 🔔", {
-            body: `${newRes.name} - ${newRes.service} à ${newRes.slot}`,
-            icon: "/pwa-192x192.png"
-          });
+          // Notification système
+          if (Notification.permission === "granted") {
+            new Notification("Nouvelle Réservation ! 🔔", {
+              body: `${newRes.name} - ${newRes.service} à ${newRes.slot}`,
+            });
+          }
         }
-      }
+        return docs;
+      });
 
-      setReservations(docs);
       setLoading(false);
+    }, (error) => {
+      console.error("Erreur Firestore Admin:", error);
+      setLoading(false); // On arrête le spinner même en cas d'erreur
     });
 
     return () => unsubscribe();
-  }, [loading, reservations.length]);
+  }, []); // Tableau de dépendances vide pour éviter la boucle infinie
 
   const handleComplete = async (id: string) => {
     if (!window.confirm("Marquer comme terminée ? Le client quittera la file d'attente.")) return;
