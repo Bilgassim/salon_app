@@ -85,9 +85,23 @@ export function Admin() {
   };
 
   const requestPermission = async () => {
-    if (!("Notification" in window)) return;
-    const result = await Notification.requestPermission();
-    setPermission(result);
+    if (!("Notification" in window)) {
+      alert("Votre navigateur ne supporte pas les notifications. \n\nSI VOUS ÊTES SUR IPHONE : Vous devez d'abord installer l'app en faisant 'Partager' -> 'Sur l'écran d'accueil'.");
+      return;
+    }
+
+    try {
+      const result = await Notification.requestPermission();
+      setPermission(result);
+      if (result === "denied") {
+        alert("Vous avez bloqué les notifications pour ce site. \n\nPour les activer, allez dans les paramètres de votre navigateur (cliquez sur le petit cadenas à côté de l'adresse du site).");
+      } else if (result === "granted") {
+        alert("Alertes activées avec succès ! ✅");
+        new Notification("Zara Beauté", { body: "Les alertes sont maintenant actives." });
+      }
+    } catch (e) {
+      alert("Erreur technique : " + e);
+    }
   };
 
   return (
@@ -119,8 +133,11 @@ export function Admin() {
         </header>
 
         {loading ? (
-          <div className="flex justify-center py-20">
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-muted-foreground animate-pulse" style={{ fontFamily: "Outfit, sans-serif" }}>
+              Connexion à Firebase en cours...
+            </p>
           </div>
         ) : (
           <div className="grid gap-4">

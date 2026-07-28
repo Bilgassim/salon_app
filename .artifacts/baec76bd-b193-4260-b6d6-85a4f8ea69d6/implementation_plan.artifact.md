@@ -1,43 +1,39 @@
-# Plan d'implémentation : File d'attente dynamique et Gestion Admin
+# Plan d'implémentation : Compatibilité iPhone (iOS) & Installation PWA
 
-L'objectif est de synchroniser la file d'attente vue par les clients avec la réalité du salon gérée sur le tableau de bord Admin.
+L'objectif est de permettre l'installation du site en tant qu'application sur iPhone, ce qui est nécessaire pour activer les notifications push sur iOS.
+
+## Pourquoi l'iPhone ne propose pas de bouton "Télécharger" ?
+Contrairement à Android, Apple ne permet pas aux navigateurs d'afficher un bouton automatique d'installation. L'utilisateur doit obligatoirement :
+1. Utiliser **Safari**.
+2. Cliquer sur le bouton **Partager** (le carré avec une flèche vers le haut).
+3. Cliquer sur **Sur l'écran d'accueil**.
 
 ## Changements Proposés
 
-### 1. [Base de données] Evolution du modèle
-- Utilisation du champ `status` pour filtrer les clients :
-    - `confirmed` : En attente dans la file.
-    - `completed` : Prestation terminée (disparaît de la file et du tableau de bord principal).
-    - `cancelled` : Annulé par le client ou l'admin.
+### 1. [HTML] Optimisation pour Apple
+- Ajouter les balises meta spécifiques à iOS dans `index.html` :
+    - `apple-mobile-web-app-capable` : Pour masquer la barre d'adresse.
+    - `apple-mobile-web-app-status-bar-style` : Pour une intégration propre.
+    - `apple-touch-icon` : Pour avoir une belle icône sur l'écran d'accueil.
 
-### 2. [Page Réservation] File d'attente réelle
-- **Suppression des données fictives** : Retrait de `EXISTING_RESERVATIONS`.
-- **Lecture en temps réel** : La liste des clients affichée dans le widget "File d'attente" proviendra directement de Firestore (uniquement ceux avec le statut `confirmed` pour aujourd'hui).
-- **Mémorisation du DocID** : Lors d'une réservation, l'identifiant unique de Firebase sera stocké dans le téléphone du client pour permettre une annulation réelle en base de données.
+### 2. [Vite] Restauration des Icônes PWA
+- Créer des icônes temporaires (ou utiliser un placeholder) pour que le manifeste soit valide aux yeux d'Apple.
+- Mettre à jour `vite.config.ts` pour inclure ces icônes.
 
-### 3. [Tableau de Bord Admin] Contrôle total
-- **Affichage du Rang** : Chaque bloc client affichera son numéro d'ordre (1, 2, 3...).
-- **Actions rapides** : Ajout de deux boutons sur chaque fiche client :
-    - **"Terminer" (Passer)** : Change le statut en `completed`. Le client libère sa place dans la file d'attente.
-    - **"Supprimer"** : Supprime définitivement la réservation.
-- **Tri chronologique** : Les clients sont classés par heure de réservation pour respecter l'ordre d'arrivée.
-
-### 4. [Logique d'Annulation]
-- Quand un client annule via son interface, le document correspondant dans Firebase passera en `cancelled`.
+### 3. [UI] Guide d'Installation pour iPhone
+- Créer un petit composant discret `IOSInstallPrompt` qui s'affiche uniquement sur iPhone/iPad.
+- Ce composant expliquera visuellement à l'utilisateur comment installer l'app (Partager -> Écran d'accueil).
 
 ## Plan de Travail
 
-### [ ] Phase 1 : Mise à jour de `Reservation.tsx`
-- Connecter le widget de file d'attente à Firestore.
-- Modifier la sauvegarde pour inclure l'ID du document dans le `localStorage`.
-- Lier le bouton "Annuler" à la suppression/mise à jour dans Firebase.
+### [ ] Phase 1 : Meta tags & Icônes
+- Modifier `index.html` pour inclure le support Apple.
+- Configurer une icône par défaut dans `public/`.
 
-### [ ] Phase 2 : Enrichissement de `Admin.tsx`
-- Ajouter le calcul du rang (index + 1).
-- Implémenter les fonctions `handleComplete` et `handleDelete`.
-- Ajouter les boutons d'action avec confirmation.
+### [ ] Phase 2 : Guide visuel
+- Créer le composant d'aide à l'installation dans `src/app/components/ui/IOSInstallPrompt.tsx`.
+- L'intégrer dans `Root.tsx`.
 
 ## Vérification
-1. Réserver sur un téléphone -> Vérifier l'apparition immédiate sur l'Admin avec le Rang 1.
-2. Réserver sur un deuxième téléphone -> Rang 2.
-3. Cliquer sur "Terminer" côté Admin -> Le premier client doit disparaître de la file d'attente sur les deux téléphones.
+- Ouvrir le site sur Safari iPhone -> Vérifier que l'option "Sur l'écran d'accueil" affiche bien le logo et le nom de l'app.
+- Une fois installé, vérifier que le site s'ouvre sans les barres de navigation du navigateur (plein écran).

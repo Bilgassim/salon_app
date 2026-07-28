@@ -35,7 +35,13 @@ export default defineConfig({
         theme_color: '#1877f2',
         background_color: '#ffffff',
         display: 'standalone',
-        icons: [] // On retire temporairement les icônes pour éviter les erreurs 404
+        icons: [
+          {
+            src: 'favicon.ico',
+            sizes: '64x64 32x32 24x24 16x16',
+            type: 'image/x-icon'
+          }
+        ]
       }
     })
   ],
