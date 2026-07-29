@@ -18,6 +18,24 @@ type Reservation = {
   createdAt: Timestamp;
 };
 
+// ─── Helpers date/heure (doublon pour admin) ───
+function isSameDay(a: Date, b: Date) {
+  return a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+}
+function slotToMins(t: string) {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+function isPastSlot(time: string, dateStr: string): boolean {
+  const now = new Date();
+  const date = new Date(dateStr);
+  if (!isSameDay(date, now)) return false;
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  return slotToMins(time) <= nowMins;
+}
+
 export function Admin() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +48,7 @@ export function Admin() {
 
     const q = query(
       collection(db, "reservations"),
-      where("status", "==", "confirmed"),
+      where("status", "in", ["confirmed", "cancelled"]), // On écoute aussi les annulations
       orderBy("createdAt", "asc")
     );
 
@@ -40,25 +58,48 @@ export function Admin() {
         ...doc.data()
       })) as Reservation[];
 
-      // Gestion des nouvelles réservations pour alertes (sans boucle infinie)
-      setReservations(prev => {
-        if (!loading && docs.length > prev.length) {
-          const newRes = docs[docs.length - 1];
+      // Gestion fine des changements pour les alertes
+      snapshot.docChanges().forEach((change) => {
+        if (loading) return; // On ignore le chargement initial
 
-          // Alerte sonore
+        const data = change.doc.data() as Reservation;
+
+        if (change.type === "added") {
+          // NOUVELLE RÉSERVATION
           const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
           audio.play().catch(e => console.log("Audio blocked", e));
 
-          // Notification système
           if (Notification.permission === "granted") {
             new Notification("Nouvelle Réservation ! 🔔", {
-              body: `${newRes.name} - ${newRes.service} à ${newRes.slot}`,
+              body: `${data.name} - ${data.service} à ${data.slot}`,
             });
           }
         }
-        return docs;
+        else if (change.type === "modified") {
+          // MODIFICATION PAR LA CLIENTE
+          const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"); // Son différent
+          audio.play().catch(e => console.log("Audio blocked", e));
+
+          if (Notification.permission === "granted") {
+            new Notification("Réservation Modifiée ✏️", {
+              body: `${data.name} a changé son créneau pour ${data.slot}`,
+            });
+          }
+        }
+        else if (data.status === "cancelled") {
+          // ANNULATION PAR LA CLIENTE
+          const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2868-preview.mp3"); // Son d'alerte
+          audio.play().catch(e => console.log("Audio blocked", e));
+
+          if (Notification.permission === "granted") {
+            new Notification("Réservation ANNULÉE ❌", {
+              body: `${data.name} a annulé son rendez-vous.`,
+            });
+          }
+        }
       });
 
+      setReservations(docs);
       setLoading(false);
     }, (error) => {
       console.error("Erreur Firestore Admin:", error);
@@ -67,6 +108,15 @@ export function Admin() {
 
     return () => unsubscribe();
   }, []); // Tableau de dépendances vide pour éviter la boucle infinie
+
+  // Rafraîchissement automatique pour masquer les expirés
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 30000); // Check toutes les 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  const visibleReservations = reservations.filter(res => !isPastSlot(res.slot, res.date));
 
   const handleComplete = async (id: string) => {
     if (!window.confirm("Marquer comme terminée ? Le client quittera la file d'attente.")) return;
@@ -146,17 +196,21 @@ export function Admin() {
         ) : (
           <div className="grid gap-4">
             <AnimatePresence mode="popLayout">
-              {reservations.map((res, index) => (
+              {visibleReservations.map((res, index) => (
                 <motion.div
                   key={res.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group"
+                  className={`bg-card border rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group ${
+                    res.status === "cancelled" ? "border-red-200 bg-red-50/30 grayscale-[0.5]" : "border-border"
+                  }`}
                 >
                   {/* Badge de Rang */}
-                  <div className="absolute top-0 left-0 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-br-xl z-10">
-                    RANG #{index + 1}
+                  <div className={`absolute top-0 left-0 text-white text-[10px] font-black px-3 py-1 rounded-br-xl z-10 ${
+                    res.status === "cancelled" ? "bg-red-500" : "bg-primary"
+                  }`}>
+                    {res.status === "cancelled" ? "ANNULÉ" : `RANG #${index + 1}`}
                   </div>
 
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
@@ -193,12 +247,18 @@ export function Admin() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleComplete(res.id)}
-                          className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Terminer
-                        </button>
+                        {res.status !== "cancelled" ? (
+                          <button
+                            onClick={() => handleComplete(res.id)}
+                            className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Terminer
+                          </button>
+                        ) : (
+                          <div className="text-red-500 text-xs font-black uppercase" style={{ fontFamily: "Outfit, sans-serif" }}>
+                            Annulé par le client
+                          </div>
+                        )}
                         <button
                           onClick={() => handleDelete(res.id)}
                           className="flex items-center gap-1.5 bg-muted hover:bg-red-50 text-muted-foreground hover:text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border border-border"
@@ -216,7 +276,7 @@ export function Admin() {
               ))}
             </AnimatePresence>
 
-            {reservations.length === 0 && (
+            {visibleReservations.length === 0 && (
               <div className="text-center py-20 bg-card rounded-3xl border border-dashed border-border">
                 <p className="text-muted-foreground italic">Aucune réservation pour le moment.</p>
               </div>

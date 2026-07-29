@@ -318,22 +318,38 @@ export function Reservation() {
       const serviceInfo = SERVICES.find(s => s.name === selectedService);
       console.log("Tentative d'envoi vers Firebase...");
 
-      const docRef = await addDoc(collection(db, "reservations"), {
-        name,
-        phone,
-        service: selectedService,
-        price: serviceInfo?.price || "À définir",
-        slot: selectedSlot,
-        date: selectedDate.toISOString(),
-        createdAt: serverTimestamp(),
-        status: "confirmed"
-      });
+      let docId = existingBooking?.id;
 
-      console.log("Succès Firebase ! ID:", docRef.id);
+      if (docId) {
+        // MODIFICATION d'une réservation existante
+        await updateDoc(doc(db, "reservations", docId), {
+          service: selectedService,
+          price: serviceInfo?.price || "À définir",
+          slot: selectedSlot,
+          date: selectedDate.toISOString(),
+          updatedAt: serverTimestamp(),
+          status: "confirmed" // On s'assure qu'elle reste en confirmed
+        });
+      } else {
+        // CRÉATION d'une nouvelle réservation
+        const docRef = await addDoc(collection(db, "reservations"), {
+          name,
+          phone,
+          service: selectedService,
+          price: serviceInfo?.price || "À définir",
+          slot: selectedSlot,
+          date: selectedDate.toISOString(),
+          createdAt: serverTimestamp(),
+          status: "confirmed"
+        });
+        docId = docRef.id;
+      }
+
+      console.log("Succès Firebase ! ID:", docId);
 
       // 2. Sauvegarde locale (Frontend)
       const bookingData: Booking = {
-        id: docRef.id,
+        id: docId!,
         name,
         phone,
         service: selectedService,
