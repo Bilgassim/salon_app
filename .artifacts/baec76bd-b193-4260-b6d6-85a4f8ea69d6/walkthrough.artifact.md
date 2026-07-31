@@ -1,24 +1,27 @@
-# Walkthrough - Installation Multi-Apps (Client & Admin)
+# Walkthrough - Fiabilisation des Notifications Admin
 
-J'ai implémenté une solution innovante pour vous permettre d'avoir **deux icônes distinctes** sur votre écran d'accueil : une pour vos clientes et une pour votre gestion personnelle.
+J'ai optimisé le système d'alertes du tableau de bord pour qu'il soit beaucoup plus réactif et fiable, tant sur ordinateur que sur mobile.
 
-## Nouvelles Fonctionnalités
+## Améliorations Apportées
 
-### 1. Double Identité PWA
-- **Zara Beauté (Client)** : L'application principale pour les réservations.
-- **Zara Admin (Gestion)** : Une application séparée qui ouvre directement votre tableau de bord.
-- **Comment ça marche ?** Le site détecte sur quelle page vous vous trouvez et propose l'installation de l'application correspondante.
+### 1. Détection Ultra-Précise
+- **Plus de boucle infinie :** L'utilisation de `useRef` permet au site de bien distinguer le chargement initial des nouvelles arrivées de clientes.
+- **Alertes Spécifiques :** Le tableau de bord fait maintenant la différence entre une **nouvelle réservation**, une **modification d'heure** et une **annulation**.
 
-### 2. Raccourcis (Shortcuts)
-- Si vous installez uniquement l'application cliente, vous pouvez maintenant rester appuyé sur l'icône pour voir un menu **"Admin"** apparaître. Cela vous permet d'accéder à vos réservations encore plus vite.
+### 2. Notifications Mobiles (PWA)
+- **Service Worker :** J'ai mis à jour la méthode d'envoi des notifications pour passer par le "moteur" de l'application (Service Worker). C'est la seule méthode qui permet de recevoir des alertes fiables sur Android et iPhone quand l'écran est éteint.
 
-### 3. Design Différencié
-- L'application Admin possède son propre nom ("Zara Admin") et une couleur de thème plus sombre pour la distinguer facilement de l'interface cliente.
+### 3. Sons et Audio
+- **Multi-Sons :** Des sons différents ont été assignés à chaque action pour que vous sachiez ce qui se passe sans regarder l'écran.
+- **Bandeau d'Aide :** Un petit message sur le tableau de bord vous rappelle de cliquer au moins une fois sur la page pour "réveiller" le son (exigence des navigateurs modernes).
 
-## Comment installer les deux ?
+## Comment tester ?
 
-1. **Pour l'app Cliente** : Allez sur la page d'accueil et utilisez le bouton "Télécharger" (Android) ou "Sur l'écran d'accueil" (iPhone).
-2. **Pour l'app Admin** : Allez sur `.../salon_app/#/admin-zara`. Le site vous proposera alors d'installer "Zara Admin" comme une nouvelle application.
+1. Déployez la mise à jour (voir ci-dessous).
+2. Ouvrez `/admin-zara` sur votre téléphone ou PC.
+3. **Cliquez une fois** n'importe où sur la page.
+4. Faites une réservation de test depuis un autre appareil.
+5. Vous devriez entendre un son et voir une bannière de notification apparaître.
 
 ---
 
@@ -28,9 +31,6 @@ J'ai implémenté une solution innovante pour vous permettre d'avoir **deux icô
 rm -r -force dist
 npm run deploy
 git add .
-git commit -m "feat: enable double PWA installation for client and admin"
+git commit -m "fix: reliable admin notifications and background alerts"
 git push origin main
 ```
-
-> [!TIP]
-> Une fois sur la page Admin, si le bouton d'installation ne s'affiche pas tout de suite, rafraîchissez la page une fois pour que le nouveau "moteur" se mette en place.

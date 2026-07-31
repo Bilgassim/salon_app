@@ -6,10 +6,10 @@
 - `[x]` Configurer Firebase et connecter la base de données Firestore
 - `[x]` Créer le tableau de bord Admin (`/admin-zara`) avec synchronisation temps réel
 - `[x]` Ajouter le système de notifications push locales et alertes sonores
-- `[x]` Créer le fichier `public/manifest-admin.webmanifest` pour l'application Admin
-- `[x]` Ajouter des raccourcis (Shortcuts) dans `vite.config.ts`
-- `[x]` Créer le composant `ManifestManager` pour basculer le manifeste selon l'URL
-- `[x]` Intégrer `ManifestManager` dans le layout principal et la page Admin
-- `[ ]` Déployer et vérifier la double installation
+- `[x]` [Admin.tsx] Utiliser `useRef` pour fiabiliser la détection des nouvelles réservations
+- `[x]` [Admin.tsx] Utiliser le `Service Worker` pour envoyer les notifications sur mobile
+- `[x]` [Admin.tsx] Ajouter des alertes sonores distinctes pour les modifications et annulations
+- `[x]` [Admin.tsx] Ajouter un bandeau d'information pour l'activation de l'audio
+- `[ ]` Déployer et tester les alertes en condition réelle
 - `[x]` Implémenter la réinitialisation automatique des réservations passées (Interface client)
 - `[x]` [Reservation.tsx] Ajouter l'écouteur temps réel sur la réservation en cours (Sync Admin -> Client)

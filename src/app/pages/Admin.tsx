@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db } from "../../firebase";
 import { collection, query, orderBy, onSnapshot, Timestamp, doc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { motion, AnimatePresence } from "motion/react";
-import { Calendar, Clock, User, Phone, Scissors, CreditCard, Bell, CheckCircle2, Trash2 } from "lucide-react";
+import { Calendar, Clock, User, Phone, Scissors, CreditCard, Bell, CheckCircle2, Trash2, Info } from "lucide-react";
 import { ManifestManager } from "../components/ManifestManager";
 import { UnifiedInstallPrompt } from "../components/ui/UnifiedInstallPrompt";
 
@@ -40,6 +40,8 @@ export function Admin() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [permission, setPermission] = useState<NotificationPermission>("default");
+  const isInitialLoad = useRef(true);
+  const prevCount = useRef(0);
 
   useEffect(() => {
     if ("Notification" in window) {
@@ -59,55 +61,62 @@ export function Admin() {
       })) as Reservation[];
 
       // Gestion fine des changements pour les alertes
-      snapshot.docChanges().forEach((change) => {
-        if (loading) return; // On ignore le chargement initial
+      if (!isInitialLoad.current) {
+        snapshot.docChanges().forEach((change) => {
+          const data = change.doc.data() as Reservation;
 
-        const data = change.doc.data() as Reservation;
-
-        if (change.type === "added") {
-          // NOUVELLE RÉSERVATION
-          const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-          audio.play().catch(e => console.log("Audio blocked", e));
-
-          if (Notification.permission === "granted") {
-            new Notification("Nouvelle Réservation ! 🔔", {
-              body: `${data.name} - ${data.service} à ${data.slot}`,
-            });
+          if (change.type === "added") {
+            // NOUVELLE RÉSERVATION
+            playAlertSound("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+            sendNotification("Nouvelle Réservation ! 🔔", `${data.name} - ${data.service} à ${data.slot}`);
           }
-        }
-        else if (change.type === "modified") {
-          // MODIFICATION PAR LA CLIENTE
-          const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"); // Son différent
-          audio.play().catch(e => console.log("Audio blocked", e));
-
-          if (Notification.permission === "granted") {
-            new Notification("Réservation Modifiée ✏️", {
-              body: `${data.name} a changé son créneau pour ${data.slot}`,
-            });
+          else if (change.type === "modified") {
+            // MODIFICATION PAR LA CLIENTE
+            if (data.status === "cancelled") {
+              playAlertSound("https://assets.mixkit.co/active_storage/sfx/2868/2868-preview.mp3");
+              sendNotification("Réservation ANNULÉE ❌", `${data.name} a annulé son rendez-vous.`);
+            } else {
+              playAlertSound("https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3");
+              sendNotification("Réservation Modifiée ✏️", `${data.name} a changé son créneau pour ${data.slot}`);
+            }
           }
-        }
-        else if (data.status === "cancelled") {
-          // ANNULATION PAR LA CLIENTE
-          const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2568/2868-preview.mp3"); // Son d'alerte
-          audio.play().catch(e => console.log("Audio blocked", e));
-
-          if (Notification.permission === "granted") {
-            new Notification("Réservation ANNULÉE ❌", {
-              body: `${data.name} a annulé son rendez-vous.`,
-            });
-          }
-        }
-      });
+        });
+      }
 
       setReservations(docs);
       setLoading(false);
+      isInitialLoad.current = false;
+      prevCount.current = docs.length;
     }, (error) => {
       console.error("Erreur Firestore Admin:", error);
-      setLoading(false); // On arrête le spinner même en cas d'erreur
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []); // Tableau de dépendances vide pour éviter la boucle infinie
+  }, []);
+
+  const playAlertSound = (url: string) => {
+    const audio = new Audio(url);
+    audio.play().catch(e => console.log("Audio play blocked - Interaction required", e));
+  };
+
+  const sendNotification = async (title: string, body: string) => {
+    if (Notification.permission !== "granted") return;
+
+    // Sur mobile/PWA, on utilise le Service Worker pour plus de fiabilité
+    if ('serviceWorker' in navigator) {
+      const registration = await navigator.serviceWorker.ready;
+      registration.showNotification(title, {
+        body,
+        icon: "/favicon.ico",
+        badge: "/favicon.ico",
+        vibrate: [200, 100, 200],
+      });
+    } else {
+      // Fallback web classique
+      new Notification(title, { body, icon: "/favicon.ico" });
+    }
+  };
 
   // Rafraîchissement automatique pour masquer les expirés
   const [now, setNow] = useState(Date.now());
@@ -185,6 +194,23 @@ export function Admin() {
             </div>
           </div>
         </header>
+
+        {/* Info interaction pour le son */}
+        <AnimatePresence>
+          {permission === "granted" && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-4 flex items-start gap-3"
+            >
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+              <div className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>
+                <strong>Note sur le son :</strong> Les navigateurs bloquent le son automatique.
+                Veuillez cliquer au moins une fois sur la page après l'avoir ouverte pour être sûre que l'alerte sonore retentisse lors d'une nouvelle réservation.
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
