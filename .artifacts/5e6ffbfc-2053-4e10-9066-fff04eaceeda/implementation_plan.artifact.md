@@ -1,43 +1,27 @@
-# Plan d'implémentation - Serveur de Notifications WhatsApp (Baileys)
+# Plan d'implémentation - File d'attente dynamique en temps réel
 
-L'objectif est de mettre en place un serveur Node.js indépendant qui utilise la bibliothèque Baileys pour envoyer des notifications de confirmation de réservation via WhatsApp de manière automatique et invisible pour la cliente.
+L'objectif est d'automatiser le nettoyage de la file d'attente sur la page client dès qu'un créneau horaire est dépassé, tout en aidant l'administrateur à identifier les retards.
 
-## User Review Required
+## Changements proposés
 
-> [!IMPORTANT]
-> **Scannage du QR Code** : Pour que le système fonctionne, vous devrez lancer le serveur une première fois et scanner un QR code qui s'affichera dans votre terminal avec votre téléphone (comme pour WhatsApp Web). Cela liera le compte du salon au serveur.
->
-> **Hébergement** : Ce serveur doit tourner en permanence (sur un PC allumé ou un VPS) pour que les messages soient envoyés instantanément.
-
-## Proposed Changes
-
-### Backend (Nouveau dossier `whatsapp-server`)
-
-#### [NOUVEAU] [index.js](file:///C:/Users/dell/salon_app/whatsapp-server/index.js)
-- Initialisation de la connexion WhatsApp avec `baileys`.
-- Gestion de la persistance de la session (pour ne pas scanner le QR code à chaque redémarrage).
-- Création d'une API Express avec un endpoint `POST /send-notification`.
-- Logique d'envoi de message formaté.
-
-#### [NOUVEAU] [.env](file:///C:/Users/dell/salon_app/whatsapp-server/.env)
-- Configuration du port du serveur.
-- Numéro de téléphone de la gérante (Zara).
-
-### Frontend (Application React)
+### 1. Page Réservation (`Reservation.tsx`)
 
 #### [MODIFIER] [Reservation.tsx](file:///C:/Users/dell/salon_app/src/app/pages/Reservation.tsx)
-- Ajout d'un appel API vers le nouveau serveur backend juste après la confirmation Firestore.
-- Envoi des détails (nom, service, date, créneau) au serveur.
+- Ajouter un état local `now` qui se met à jour toutes les 60 secondes via un `setInterval`.
+- Filtrer la liste `queue` affichée dans le widget de file d'attente pour ne conserver que les rendez-vous dont l'heure n'est pas encore passée (`!isPastSlot(r.slot, new Date(r.date))`).
+- Cela garantit que la file d'attente reste "fraîche" sans action manuelle.
+
+### 2. Page Administration (`Admin.tsx`)
+
+#### [MODIFIER] [Admin.tsx](file:///C:/Users/dell/salon_app/src/app/pages/Admin.tsx)
+- Ajouter une distinction visuelle pour les réservations dont l'heure est passée mais qui n'ont pas été marquées comme terminées.
+- Afficher un badge **"EXPIRED / EN RETARD"** et appliquer une bordure ambrée.
+- Cela permet à l'admin de voir qu'il a oublié de valider un client.
 
 ## Plan de vérification
 
-### Tests Automatisés / Manuels
-1.  **Lancement du Backend** : Installer les dépendances (`npm install`) et lancer le serveur (`npm start`).
-2.  **Liaison WhatsApp** : Scanner le QR code affiché dans le terminal.
-3.  **Test de Réservation** : Effectuer une réservation sur le site web.
-4.  **Vérification WhatsApp** : Confirmer que la cliente (ou le numéro de test) reçoit bien le message automatique sans action manuelle.
-
----
-
-Souhaitez-vous que je procède à la création des fichiers du serveur ?
-*(Note: Vous devrez lancer l'installation des paquets manuellement dans le dossier `whatsapp-server` après mon intervention).*
+### Manuel
+- [ ] Créer une réservation pour un créneau très proche (ex: dans 2 min).
+- [ ] Vérifier qu'elle apparaît dans la file d'attente client.
+- [ ] Attendre que l'heure passe.
+- [ ] Vérifier qu'elle disparaît de la file client mais reste visible (avec une alerte) dans l'Admin.

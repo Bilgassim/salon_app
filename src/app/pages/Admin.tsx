@@ -125,7 +125,7 @@ export function Admin() {
     return () => clearInterval(interval);
   }, []);
 
-  const visibleReservations = reservations.filter(res => !isPastSlot(res.slot, res.date));
+  const visibleReservations = reservations; // On affiche tout pour le suivi réel
 
   const handleComplete = async (id: string) => {
     if (!window.confirm("Marquer comme terminée ? Le client quittera la file d'attente.")) return;
@@ -229,14 +229,17 @@ export function Admin() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   className={`bg-card border rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group ${
-                    res.status === "cancelled" ? "border-red-200 bg-red-50/30 grayscale-[0.5]" : "border-border"
+                    res.status === "cancelled" ? "border-red-200 bg-red-50/30 grayscale-[0.5]" :
+                    isPastSlot(res.slot, res.date) ? "border-amber-200 bg-amber-50/20" : "border-border"
                   }`}
                 >
-                  {/* Badge de Rang */}
+                  {/* Badge de Rang / Status */}
                   <div className={`absolute top-0 left-0 text-white text-[10px] font-black px-3 py-1 rounded-br-xl z-10 ${
-                    res.status === "cancelled" ? "bg-red-500" : "bg-primary"
+                    res.status === "cancelled" ? "bg-red-500" :
+                    isPastSlot(res.slot, res.date) ? "bg-amber-500 animate-pulse" : "bg-primary"
                   }`}>
-                    {res.status === "cancelled" ? "ANNULÉ" : `RANG #${index + 1}`}
+                    {res.status === "cancelled" ? "ANNULÉ" :
+                     isPastSlot(res.slot, res.date) ? "🕒 EXPIRE / RETARD" : `RANG #${index + 1}`}
                   </div>
 
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">

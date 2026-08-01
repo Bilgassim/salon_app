@@ -282,8 +282,17 @@ export function Reservation() {
   const [waLink, setWaLink] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Rafraîchissement automatique de la file d'attente (chaque minute)
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(Date.now()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   const takenSlots = getTakenSlots(selectedDate, todayConfirmedSlots);
-  const myQueuePos = queue.findIndex(r => r.id === existingBooking?.id) + 1;
+  // Filtrer la file d'attente pour ne garder que les rendez-vous à venir ou en cours
+  const activeQueue = queue.filter(r => !isPastSlot(r.slot, new Date(r.date)));
+  const myQueuePos = activeQueue.findIndex(r => r.id === existingBooking?.id) + 1;
   const DAYS = getNext7Days();
 
   // Validation horaire personnalisé
@@ -305,18 +314,25 @@ export function Reservation() {
   useEffect(() => { if (phoneError) setPhoneError(""); }, [phone]);
 
   const handleConfirm = async () => {
-    if (!name || !selectedService || !selectedSlot) return;
+    console.log("🔘 Bouton confirmer cliqué !");
+    console.log("Données actuelles:", { name, phone, selectedService, selectedSlot, selectedDate });
+
+    if (!name || !selectedService || !selectedSlot) {
+      alert(`⚠️ Champs manquants :\n${!name ? "- Nom\n" : ""}${!selectedService ? "- Service\n" : ""}${!selectedSlot ? "- Créneau" : ""}`);
+      return;
+    }
     if (!isValidPhone(phone)) {
       setPhoneError("Numéro invalide. Saisissez un numéro valide (ex. +227 90 00 00 00).");
       return;
     }
 
     setIsSubmitting(true);
+    console.log("🚀 Lancement de la procédure de réservation...");
 
     try {
       // 1. Sauvegarde dans Firebase (Backend)
       const serviceInfo = SERVICES.find(s => s.name === selectedService);
-      console.log("Tentative d'envoi vers Firebase...");
+      console.log("📡 Envoi vers Firebase...");
 
       let docId = existingBooking?.id;
 
@@ -328,7 +344,7 @@ export function Reservation() {
           slot: selectedSlot,
           date: selectedDate.toISOString(),
           updatedAt: serverTimestamp(),
-          status: "confirmed" // On s'assure qu'elle reste en confirmed
+          status: "confirmed"
         });
       } else {
         // CRÉATION d'une nouvelle réservation
@@ -345,12 +361,12 @@ export function Reservation() {
         docId = docRef.id;
       }
 
-      console.log("Succès Firebase ! ID:", docId);
+      console.log("✅ Succès Firebase ! ID:", docId);
 
       // 3. Appel au serveur de notification WhatsApp (Baileys)
       try {
-        console.log("Appel au serveur WhatsApp...");
-        await fetch("http://localhost:3001/send-notification", {
+        console.log("📱 Appel au serveur WhatsApp local...");
+        const response = await fetch("http://localhost:3001/send-notification", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -361,9 +377,20 @@ export function Reservation() {
             date: formatDateFull(selectedDate)
           })
         });
-        console.log("Notification WhatsApp envoyée via le serveur !");
+        if (response.ok) {
+          console.log("💬 Notification WhatsApp envoyée !");
+        } else {
+          const errData = await response.json();
+          console.warn("⚠️ Le serveur WhatsApp a répondu avec une erreur:", errData);
+          alert("Le serveur WhatsApp est connecté mais l'envoi a échoué. Vérifiez le terminal du serveur.");
+        }
       } catch (err) {
-        console.warn("Le serveur WhatsApp n'est pas actif ou inaccessible. Le message n'a pas été envoyé automatiquement.", err);
+        console.error("❌ Erreur connexion serveur WhatsApp:", err);
+        if (window.location.protocol === "https:") {
+          alert("🔴 SÉCURITÉ : Vous êtes sur un site sécurisé (HTTPS), mais le serveur WhatsApp est local (HTTP).\n\nLe navigateur bloque l'envoi pour votre sécurité. Pour tester WhatsApp, utilisez l'adresse : http://localhost:5173");
+        } else {
+          alert("🔴 SERVEUR ÉTEINT : Impossible de joindre le serveur WhatsApp sur le port 3001.\n\nAssurez-vous d'avoir lancé 'npm start' dans le dossier 'whatsapp-server'.");
+        }
       }
 
       // 2. Sauvegarde locale (Frontend)
@@ -505,12 +532,12 @@ export function Reservation() {
                     <span className="text-sm font-bold text-blue-100" style={{ fontFamily: "DM Mono, monospace" }}>FILE D'ATTENTE EN DIRECT</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] text-blue-200">
-                    <Wifi className="w-3 h-3" /> En ligne
+                    <Wifi className="w-3 h-3" /> En direct
                   </div>
                 </div>
 
                 <div className="space-y-2 mb-4">
-                  {queue.map((r, idx) => (
+                  {activeQueue.map((r, idx) => (
                     <div key={r.id} className="flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2">
                       <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-black">
                         {idx + 1}
@@ -526,7 +553,7 @@ export function Reservation() {
                   ))}
 
                   {/* Slot "Vide" si aucune réservation */}
-                  {queue.length === 0 && (
+                  {activeQueue.length === 0 && (
                     <div className="flex items-center gap-3 bg-white/5 border border-dashed border-white/20 rounded-xl px-3 py-2">
                       <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-black text-blue-200">
                         1
@@ -537,7 +564,7 @@ export function Reservation() {
                 </div>
 
                 <p className="text-[10px] text-blue-200/50 text-center" style={{ fontFamily: "DM Mono, monospace" }}>
-                  Position attribuée automatiquement · Mise à jour en temps réel
+                  Mise à jour automatique · {new Date(currentTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </motion.div>
             </motion.div>

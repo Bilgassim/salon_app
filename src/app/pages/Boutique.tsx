@@ -97,9 +97,10 @@ function OrderModal({
   const handleOrder = async () => {
     if (!canSubmit) return;
     setIsSending(true);
+    console.log("🛒 Tentative d'envoi de commande au serveur...");
 
     try {
-      await fetch("http://localhost:3001/send-order", {
+      const response = await fetch("http://localhost:3001/send-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -111,9 +112,21 @@ function OrderModal({
           delivery,
         }),
       });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Erreur serveur");
+      }
+
+      console.log("✅ Commande envoyée avec succès au serveur WhatsApp");
       setStep("sent");
     } catch (err) {
-      console.error("Erreur serveur WhatsApp:", err);
+      console.warn("⚠️ Serveur WhatsApp injoignable, basculement vers lien direct.", err);
+
+      if (window.location.protocol === "https:") {
+        alert("Note : Vous êtes sur HTTPS, le serveur WhatsApp local est bloqué par le navigateur.\n\nUtilisation du lien direct WhatsApp.");
+      }
+
       // Fallback: lien direct si le serveur est KO
       const whatsappMessage = encodeURIComponent(
         `Bonjour Mme Fatouma 👋\n\n` +

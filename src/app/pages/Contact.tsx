@@ -16,14 +16,22 @@ function ContactForm() {
     setIsSending(true);
 
     try {
-      await fetch("http://localhost:3001/send-contact", {
+      const response = await fetch("http://localhost:3001/send-contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone, subject, message }),
       });
+
+      if (!response.ok) throw new Error("Erreur serveur");
+
       setSent(true);
     } catch (err) {
       console.error("Erreur envoi contact:", err);
+
+      if (window.location.protocol === "https:") {
+        alert("Note : Vous êtes sur HTTPS, le serveur WhatsApp local est bloqué. Utilisation du lien direct.");
+      }
+
       // Fallback: lien wa.me
       const waMsg = encodeURIComponent(`*Nouveau Message Contact*\n\n👤 *Nom:* ${name}\n📞 *Tél:* ${phone}\n📌 *Sujet:* ${subject}\n💬 *Message:* ${message}`);
       window.open(`https://wa.me/212710862027?text=${waMsg}`, "_blank");

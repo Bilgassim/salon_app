@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "dev:prototype": "vite --config vite.config.prototype.ts",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "build:prototype": "vite build --config vite.config.prototype.ts"

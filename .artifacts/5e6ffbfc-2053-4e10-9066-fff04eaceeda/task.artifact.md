@@ -1,8 +1,4 @@
-- [x] Forcer une largeur fixe de 1100px pour le `LaptopFrame` dans `MockupFrames.tsx`
-- [x] Empêcher la réduction du cadre avec `flex-shrink-0`
-- [x] Optimiser la mise à l'échelle (`scale`) dans `showcase-main.tsx`
-- [x] Re-générer le prototype (`npm run build:prototype`)
-- [x] Vérifier que la Navbar desktop est bien horizontale
-- [x] Créer le serveur WhatsApp (Baileys) dans `whatsapp-server/`
-- [x] Configurer l'endpoint API pour les notifications
-- [x] Connecter le frontend (`Reservation.tsx`) au serveur WhatsApp
+- [ ] Implémenter le "tick" de 60s et le filtrage dans `Reservation.tsx`
+- [ ] Ajouter les indicateurs de retard dans `Admin.tsx`
+- [ ] Mettre à jour le prototype (`npm run build:prototype`)
+- [ ] Effectuer un test de passage de temps
