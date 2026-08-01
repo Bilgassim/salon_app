@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ShoppingBag, Store, Truck, X, Check,
-  MessageCircle, User, Phone, ArrowRight, Package, ChevronLeft, Sparkles,
+  MessageCircle, User, Phone, ArrowRight, Package, ChevronLeft, Sparkles, Loader2,
 } from "lucide-react";
 
 const fadeUp = {
@@ -87,23 +87,51 @@ function OrderModal({
   const [nom, setNom] = useState("");
   const [tel, setTel] = useState("");
   const [qty, setQty] = useState(1);
+  const [isSending, setIsSending] = useState(false);
 
   const canSubmit = nom.trim().length > 1 && tel.trim().length > 5;
 
   const priceNum = parseInt(product.price.replace(/\D/g, ""), 10) || 0;
   const totalPrice = priceNum > 0 ? `${(priceNum * qty).toLocaleString("fr-FR")} FCFA` : product.price;
 
-  const whatsappMessage = encodeURIComponent(
-    `Bonjour Mme Fatouma 👋\n\n` +
-    `Je souhaite commander le produit suivant :\n\n` +
-    `🛍️ *Produit :* ${product.name}\n` +
-    `🔢 *Quantité :* ${qty}\n` +
-    `💰 *Prix total :* ${totalPrice}\n` +
-    `📦 *Mode :* ${delivery === "retrait" ? "Retrait au salon" : "Livraison à domicile"}\n\n` +
-    `👤 *Nom & Prénom :* ${nom}\n` +
-    `📞 *Téléphone :* ${tel}\n\n` +
-    `Merci de confirmer ma commande 🙏`
-  );
+  const handleOrder = async () => {
+    if (!canSubmit) return;
+    setIsSending(true);
+
+    try {
+      await fetch("http://localhost:3001/send-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: nom,
+          phone: tel,
+          product: product.name,
+          qty,
+          total: totalPrice,
+          delivery,
+        }),
+      });
+      setStep("sent");
+    } catch (err) {
+      console.error("Erreur serveur WhatsApp:", err);
+      // Fallback: lien direct si le serveur est KO
+      const whatsappMessage = encodeURIComponent(
+        `Bonjour Mme Fatouma 👋\n\n` +
+        `Je souhaite commander le produit suivant :\n\n` +
+        `🛍️ *Produit :* ${product.name}\n` +
+        `🔢 *Quantité :* ${qty}\n` +
+        `💰 *Prix total :* ${totalPrice}\n` +
+        `📦 *Mode :* ${delivery === "retrait" ? "Retrait au salon" : "Livraison à domicile"}\n\n` +
+        `👤 *Nom & Prénom :* ${nom}\n` +
+        `📞 *Téléphone :* ${tel}\n\n` +
+        `Merci de confirmer ma commande 🙏`
+      );
+      window.open(`https://wa.me/${WA_NUMBER}?text=${whatsappMessage}`, "_blank");
+      setStep("sent");
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <motion.div
@@ -271,19 +299,23 @@ function OrderModal({
                   Votre commande sera envoyée à Mme Fatouma via WhatsApp. Elle vous contactera pour confirmer.
                 </p>
 
-                <motion.a
-                  href={`https://wa.me/${WA_NUMBER}?text=${whatsappMessage}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setTimeout(() => setStep("sent"), 400)}
+                <motion.button
+                  onClick={handleOrder}
+                  disabled={isSending}
                   whileHover={{ scale: 1.02, boxShadow: "0 8px 24px rgba(34,197,94,0.4)" }}
                   whileTap={{ scale: 0.97 }}
-                  className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                  className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-colors text-sm disabled:opacity-50"
                   style={{ fontFamily: "Outfit, sans-serif" }}
                 >
-                  <MessageCircle className="w-5 h-5" />
-                  Envoyer la commande via WhatsApp
-                </motion.a>
+                  {isSending ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Envoi...</>
+                  ) : (
+                    <>
+                      <MessageCircle className="w-5 h-5" />
+                      Confirmer la commande
+                    </>
+                  )}
+                </motion.button>
               </motion.div>
             )}
 

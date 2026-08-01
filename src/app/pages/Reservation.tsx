@@ -643,9 +643,9 @@ export function Reservation() {
                     {cancelCount < 2 && (
                       <button
                         onClick={handleCancel}
-                        className="w-full text-xs text-red-500 font-semibold hover:underline"
+                        className="w-full flex items-center justify-center gap-2 text-red-500 font-bold py-3 text-sm hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors"
                       >
-                        Annuler la réservation
+                        <X className="w-4 h-4" /> Annuler la réservation
                       </button>
                     )}
                   </div>

@@ -1,5 +1,102 @@
-import { motion } from "motion/react";
-import { MapPin, Clock, Phone, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { MapPin, Clock, Phone, MessageCircle, Send, Check, Loader2, User, HelpCircle } from "lucide-react";
+
+function ContactForm() {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [subject, setSubject] = useState("Information");
+  const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !phone || !message) return;
+    setIsSending(true);
+
+    try {
+      await fetch("http://localhost:3001/send-contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, subject, message }),
+      });
+      setSent(true);
+    } catch (err) {
+      console.error("Erreur envoi contact:", err);
+      // Fallback: lien wa.me
+      const waMsg = encodeURIComponent(`*Nouveau Message Contact*\n\n👤 *Nom:* ${name}\n📞 *Tél:* ${phone}\n📌 *Sujet:* ${subject}\n💬 *Message:* ${message}`);
+      window.open(`https://wa.me/212710862027?text=${waMsg}`, "_blank");
+      setSent(true);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  if (sent) {
+    return (
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-green-200 dark:border-green-900/30 p-8 rounded-3xl text-center">
+        <div className="w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+          <Check className="w-8 h-8" />
+        </div>
+        <h3 className="text-xl font-black text-foreground mb-2" style={{ fontFamily: "Fraunces, serif" }}>Message envoyé !</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>
+          Mme Fatouma a bien reçu votre demande. Elle vous répondra sur WhatsApp très prochainement.
+        </p>
+        <button onClick={() => setSent(false)} className="mt-6 text-primary font-bold text-sm hover:underline">Envoyer un autre message</button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-card border border-border p-6 sm:p-8 rounded-3xl space-y-4 shadow-sm">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1" style={{ fontFamily: "DM Mono, monospace" }}>Votre Nom</label>
+          <div className="relative">
+            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input required type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Prénom Nom" className="w-full bg-muted border border-border rounded-xl pl-10 pr-4 py-3 text-sm outline-none focus:border-primary transition-all" />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1" style={{ fontFamily: "DM Mono, monospace" }}>Téléphone</label>
+          <div className="relative">
+            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+227 -- -- -- --" className="w-full bg-muted border border-border rounded-xl pl-10 pr-4 py-3 text-sm outline-none focus:border-primary transition-all" />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1" style={{ fontFamily: "DM Mono, monospace" }}>Objet de la demande</label>
+        <div className="relative">
+          <HelpCircle className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <select value={subject} onChange={(e) => setSubject(e.target.value)} className="w-full bg-muted border border-border rounded-xl pl-10 pr-4 py-3 text-sm outline-none focus:border-primary transition-all appearance-none cursor-pointer">
+            <option>Information</option>
+            <option>Question sur un produit</option>
+            <option>Problème de réservation</option>
+            <option>Autre</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1" style={{ fontFamily: "DM Mono, monospace" }}>Message</label>
+        <textarea required rows={4} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Comment pouvons-nous vous aider ?" className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-all resize-none" />
+      </div>
+
+      <motion.button
+        whileTap={{ scale: 0.98 }}
+        disabled={isSending}
+        className="w-full bg-primary text-primary-foreground font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-95 transition-opacity disabled:opacity-50"
+        style={{ fontFamily: "Outfit, sans-serif" }}
+      >
+        {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+        Envoyer le message
+      </motion.button>
+    </form>
+  );
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -87,9 +184,16 @@ export function Contact() {
             </motion.div>
 
             {/* Right */}
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeRight} className="space-y-6">
+            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-6">
+              <div className="mb-4">
+                <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]" style={{ fontFamily: "DM Mono, monospace" }}>Contact Rapide</span>
+                <h2 className="text-2xl font-black text-foreground mt-1" style={{ fontFamily: "Fraunces, serif" }}>Écrivez-nous</h2>
+              </div>
+
+              <ContactForm />
+
               {/* Map placeholder */}
-              <div className="bg-muted rounded-3xl overflow-hidden border border-border h-64 relative">
+              <div className="bg-muted rounded-3xl overflow-hidden border border-border h-48 relative mt-8">
                 <img
                   src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=400&fit=crop&auto=format"
                   alt="N'Djamena, Tchad"

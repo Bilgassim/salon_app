@@ -1,37 +1,31 @@
-# Intégration WhatsApp Automatisée (Baileys)
+# Extension WhatsApp - Boutique & Contact
 
-J'ai mis en place le système de notifications WhatsApp automatiques. Désormais, le site peut envoyer des messages de confirmation de manière invisible pour la cliente.
+J'ai étendu la logique de notifications WhatsApp automatiques à l'ensemble du site. Désormais, les commandes de produits et les messages de contact passent également par votre serveur discret.
 
-## Composants créés
+## Améliorations par page
 
-### 1. Serveur Backend WhatsApp (`whatsapp-server/`)
-Un serveur autonome sous Node.js qui gère la connexion WhatsApp.
-- **index.js** : Utilise Baileys pour maintenir la session et Express pour recevoir les commandes du site.
-- **Auto-reconnexion** : Le serveur tente de se reconnecter automatiquement en cas de coupure.
-- **Endpoint API** : `http://localhost:3001/send-notification`.
+### 1. Boutique (`Boutique.tsx`)
+- **Automatisation** : Le bouton "Envoyer la commande" ne redirige plus vers l'application WhatsApp. Il envoie la commande directement au serveur en arrière-plan.
+- **Micro-interactions** : Ajout d'un indicateur de chargement ("Envoi...") pendant la communication avec le serveur.
+- **Fallback Intelligent** : Si votre serveur est éteint, le site bascule automatiquement sur l'ancien système (lien `wa.me`) pour ne jamais perdre de vente.
 
-### 2. Intégration Frontend (`Reservation.tsx`)
-- Dès qu'une réservation est confirmée dans Firestore, le site envoie une requête discrète au serveur local pour déclencher le message WhatsApp.
-- **Message formaté** : Le message envoyé contient le nom de la cliente, le service, la date et l'heure.
+### 2. Contact (`Contact.tsx`)
+- **Nouveau Formulaire** : Création d'un formulaire de contact moderne (Nom, Téléphone, Objet, Message).
+- **Envoi Direct** : Le message est transmis instantanément à la gérante sur son WhatsApp via le serveur Baileys.
+- **Expérience Fluide** : Un message de succès élégant s'affiche une fois le message transmis.
 
-## Comment l'activer ?
+### 3. Backend (`whatsapp-server/index.js`)
+- **Nouveaux Endpoints** :
+    - `POST /send-order` : Formate les messages pour les commandes (Produit, Quantité, Prix Total, Mode de retrait).
+    - `POST /send-contact` : Formate les messages pour les demandes d'informations.
+- **Logs de Suivi** : Le terminal affiche maintenant clairement le type de demande reçue (COMMANDE ou MESSAGE CONTACT).
 
-Pour faire fonctionner le système, vous devez suivre ces étapes sur votre ordinateur :
+## Comment tester ?
 
-1.  **Installation** : Allez dans le dossier `whatsapp-server` et installez les dépendances :
-    ```bash
-    cd whatsapp-server
-    npm install
-    ```
-2.  **Démarrage** : Lancez le serveur :
-    ```bash
-    npm start
-    ```
-3.  **Liaison** : Un QR code va s'afficher dans votre terminal. Scannez-le avec l'application WhatsApp de votre téléphone (comme pour WhatsApp Web).
-4.  **Test** : Faites une réservation sur votre site. Le message sera envoyé automatiquement !
-
-> [!NOTE]
-> Le serveur doit rester allumé pour envoyer les messages. Pour une utilisation réelle, il est conseillé de l'héberger sur un petit serveur en ligne (VPS).
+1.  **Serveur** : Assurez-vous que votre serveur WhatsApp est allumé (`npm start` dans le dossier `whatsapp-server`).
+2.  **Boutique** : Allez dans la boutique, choisissez un produit et remplissez le formulaire. Cliquez sur "Confirmer".
+3.  **Contact** : Allez sur la page contact, remplissez le nouveau formulaire et envoyez.
+4.  **Vérification** : Regardez votre terminal serveur et votre compte WhatsApp.
 
 > [!TIP]
-> Si vous voulez aussi recevoir une notification sur votre propre numéro à chaque nouvelle réservation, assurez-vous que `OWNER_PHONE` est bien configuré dans le fichier `.env` du dossier `whatsapp-server`.
+> N'oubliez pas de rafraîchir le fichier `dist-prototype/index-prototype.html` pour voir ces changements dans votre prototype interactif.
