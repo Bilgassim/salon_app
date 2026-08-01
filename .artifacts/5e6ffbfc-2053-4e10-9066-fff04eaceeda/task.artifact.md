@@ -1,0 +1,5 @@
+- [x] Forcer une largeur fixe de 1100px pour le `LaptopFrame` dans `MockupFrames.tsx`
+- [x] Empêcher la réduction du cadre avec `flex-shrink-0`
+- [x] Optimiser la mise à l'échelle (`scale`) dans `showcase-main.tsx`
+- [x] Re-générer le prototype (`npm run build:prototype`)
+- [x] Vérifier que la Navbar desktop est bien horizontale

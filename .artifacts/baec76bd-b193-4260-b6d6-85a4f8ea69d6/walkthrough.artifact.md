@@ -1,36 +1,36 @@
-# Walkthrough - Fiabilisation des Notifications Admin
+# Walkthrough - Prototype Standalone "Zara Showcase"
 
-J'ai optimisé le système d'alertes du tableau de bord pour qu'il soit beaucoup plus réactif et fiable, tant sur ordinateur que sur mobile.
+J'ai créé un pack de présentation complet et autonome qui permet de montrer votre projet sous son meilleur jour, que ce soit sur mobile ou sur ordinateur.
 
-## Améliorations Apportées
+## Ce qui a été réalisé
 
-### 1. Détection Ultra-Précise
-- **Plus de boucle infinie :** L'utilisation de `useRef` permet au site de bien distinguer le chargement initial des nouvelles arrivées de clientes.
-- **Alertes Spécifiques :** Le tableau de bord fait maintenant la différence entre une **nouvelle réservation**, une **modification d'heure** et une **annulation**.
+### 1. Le Fichier Unique (Standalone)
+- **Tout-en-un** : J'ai généré un fichier nommé `index-prototype.html` qui contient l'intégralité du site (code, design, animations).
+- **Zéro Connexion** : Ce fichier peut être ouvert sur n'importe quel ordinateur ou téléphone, même sans internet. Idéal pour vos présentations en clientèle.
 
-### 2. Notifications Mobiles (PWA)
-- **Service Worker :** J'ai mis à jour la méthode d'envoi des notifications pour passer par le "moteur" de l'application (Service Worker). C'est la seule méthode qui permet de recevoir des alertes fiables sur Android et iPhone quand l'écran est éteint.
+### 2. Interface Showcase Multi-Support
+- **iPhone 15 Pro** : Une vue mobile réaliste avec encoche et bords arrondis.
+- **Ordinateur (Laptop)** : Une vue large pour montrer la version bureau du site.
+- **Sélecteur Tactile** : Une barre d'outils en haut permet de basculer instantanément entre les deux vues.
 
-### 3. Sons et Audio
-- **Multi-Sons :** Des sons différents ont été assignés à chaque action pour que vous sachiez ce qui se passe sans regarder l'écran.
-- **Bandeau d'Aide :** Un petit message sur le tableau de bord vous rappelle de cliquer au moins une fois sur la page pour "réveiller" le son (exigence des navigateurs modernes).
+### 3. Design Zara Préservé
+- Les polices **Fraunces** et **Outfit** sont incluses dans le fichier.
+- Le dégradé de fond luxueux et les couleurs du salon sont respectés à 100%.
 
-## Comment tester ?
+## Comment générer votre fichier ?
 
-1. Déployez la mise à jour (voir ci-dessous).
-2. Ouvrez `/admin-zara` sur votre téléphone ou PC.
-3. **Cliquez une fois** n'importe où sur la page.
-4. Faites une réservation de test depuis un autre appareil.
-5. Vous devriez entendre un son et voir une bannière de notification apparaître.
-
----
-
-### Pour mettre à jour votre site :
+Pour obtenir votre fichier prêt à l'emploi, tapez simplement cette commande dans votre terminal :
 
 ```powershell
-rm -r -force dist
-npm run deploy
-git add .
-git commit -m "fix: reliable admin notifications and background alerts"
-git push origin main
+npm run build:prototype
 ```
+
+Le fichier sera créé dans le dossier :
+`C:/Users/dell/salon_app/dist-prototype/index-prototype.html`
+
+> [!TIP]
+> Vous pouvez renommer ce fichier `Zara-Prototype.html` et l'envoyer à vos clients. Ils n'ont qu'à double-cliquer dessus pour lancer la démonstration.
+
+## Prochaines étapes suggérées
+- Ajouter des captures d'écran réelles du salon à l'intérieur du prototype pour encore plus de réalisme.
+- Personnaliser les textes de présentation sur le côté du prototype.

@@ -1,15 +1,10 @@
-- `[x]` Créer les fonctions utilitaires pour le LocalStorage (sauvegarde, récupération, annulation)
-- `[x]` Implémenter l'interface "Ma Réservation" (récapitulatif et actions)
-- `[x]` Ajouter la logique de modification (pré-remplissage du formulaire)
-- `[x]` Implémenter la restriction d'annulation (limite de 1 annulation autonome)
-- `[x]` Finaliser l'intégration dans `Reservation.tsx`
-- `[x]` Configurer Firebase et connecter la base de données Firestore
-- `[x]` Créer le tableau de bord Admin (`/admin-zara`) avec synchronisation temps réel
-- `[x]` Ajouter le système de notifications push locales et alertes sonores
-- `[x]` [Admin.tsx] Utiliser `useRef` pour fiabiliser la détection des nouvelles réservations
-- `[x]` [Admin.tsx] Utiliser le `Service Worker` pour envoyer les notifications sur mobile
-- `[x]` [Admin.tsx] Ajouter des alertes sonores distinctes pour les modifications et annulations
-- `[x]` [Admin.tsx] Ajouter un bandeau d'information pour l'activation de l'audio
-- `[ ]` Déployer et tester les alertes en condition réelle
-- `[x]` Implémenter la réinitialisation automatique des réservations passées (Interface client)
-- `[x]` [Reservation.tsx] Ajouter l'écouteur temps réel sur la réservation en cours (Sync Admin -> Client)
+- `[x]` Configuration de l'infrastructure de build standalone
+    - `[x]` Créer `vite.config.prototype.ts`
+    - `[x]` Mettre à jour `package.json`
+- `[x]` Création des cadres de présentation (Mockups)
+    - `[x]` Coder le cadre iPhone en Tailwind
+    - `[x]` Coder le cadre MacBook/Ordinateur en Tailwind
+- `[x]` Développement de l'interface Showcase
+    - `[x]` Créer le point d'entrée `showcase-main.tsx` et `index-prototype.html`
+    - `[x]` Gérer le sélecteur de mode (Mobile/Desktop)
+- `[x]` Finalisation et test du build unique
