@@ -1,24 +1,37 @@
-# Prototype Interactif - Ajustements de Taille et Fidélité
+# Intégration WhatsApp Automatisée (Baileys)
 
-J'ai ajusté la taille globale du cadre pour qu'il soit moins imposant tout en conservant la fidélité Desktop.
+J'ai mis en place le système de notifications WhatsApp automatiques. Désormais, le site peut envoyer des messages de confirmation de manière invisible pour la cliente.
 
-## Ajustements effectués
+## Composants créés
 
-### 1. Réduction de la taille visuelle
-- **Échelle (Scale)** : J'ai réduit les facteurs de zoom arrière (`0.5x` à `0.9x`) pour que le cadre prenne moins de place sur l'écran et laisse plus d'air autour.
-- **Hauteur de l'écran** : La hauteur du simulateur d'ordinateur a été passée de 640px à **580px**, ce qui donne un aspect plus compact et équilibré.
+### 1. Serveur Backend WhatsApp (`whatsapp-server/`)
+Un serveur autonome sous Node.js qui gère la connexion WhatsApp.
+- **index.js** : Utilise Baileys pour maintenir la session et Express pour recevoir les commandes du site.
+- **Auto-reconnexion** : Le serveur tente de se reconnecter automatiquement en cas de coupure.
+- **Endpoint API** : `http://localhost:3001/send-notification`.
 
-### 2. Maintien de la Fidélité
-- Malgré la réduction visuelle, la largeur logique reste fixée à **1100px**. Le site affiche donc toujours sa version bureau complète sans passer en mode responsive.
+### 2. Intégration Frontend (`Reservation.tsx`)
+- Dès qu'une réservation est confirmée dans Firestore, le site envoie une requête discrète au serveur local pour déclencher le message WhatsApp.
+- **Message formaté** : Le message envoyé contient le nom de la cliente, le service, la date et l'heure.
 
-### 3. Stabilité Mobile
-Le cadre mobile a également été fixé pour éviter toute déformation lors du passage d'une vue à l'autre.
+## Comment l'activer ?
 
-## Vérification
+Pour faire fonctionner le système, vous devez suivre ces étapes sur votre ordinateur :
 
-- [x] **Mode Ordinateur** : La Navbar est désormais **toujours horizontale** et le design ne passe plus jamais en mode "hamburger" ou "écrasé".
-- [x] **Intégrité du design** : Le site conserve ses proportions exactes.
-- [x] **Adaptabilité** : Le prototype reste centrable et lisible sur n'importe quel écran grâce au zoom dynamique.
+1.  **Installation** : Allez dans le dossier `whatsapp-server` et installez les dépendances :
+    ```bash
+    cd whatsapp-server
+    npm install
+    ```
+2.  **Démarrage** : Lancez le serveur :
+    ```bash
+    npm start
+    ```
+3.  **Liaison** : Un QR code va s'afficher dans votre terminal. Scannez-le avec l'application WhatsApp de votre téléphone (comme pour WhatsApp Web).
+4.  **Test** : Faites une réservation sur votre site. Le message sera envoyé automatiquement !
 
-> [!IMPORTANT]
-> Cette fois, le viewport est "blindé". Le site "croit" qu'il est sur un écran de 1100px, point final. Vous avez la garantie d'une présentation bureau fidèle.
+> [!NOTE]
+> Le serveur doit rester allumé pour envoyer les messages. Pour une utilisation réelle, il est conseillé de l'héberger sur un petit serveur en ligne (VPS).
+
+> [!TIP]
+> Si vous voulez aussi recevoir une notification sur votre propre numéro à chaque nouvelle réservation, assurez-vous que `OWNER_PHONE` est bien configuré dans le fichier `.env` du dossier `whatsapp-server`.

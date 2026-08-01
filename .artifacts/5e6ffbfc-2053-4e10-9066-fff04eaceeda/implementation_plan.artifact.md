@@ -1,32 +1,43 @@
-# Plan d'implémentation - Correction de la fidélité responsive via Iframe
+# Plan d'implémentation - Serveur de Notifications WhatsApp (Baileys)
 
-L'objectif est de garantir que le mode mobile du prototype affiche réellement le design responsive du site (menu hamburger, hero mobile, etc.) en isolant le viewport à l'aide d'une `iframe`.
+L'objectif est de mettre en place un serveur Node.js indépendant qui utilise la bibliothèque Baileys pour envoyer des notifications de confirmation de réservation via WhatsApp de manière automatique et invisible pour la cliente.
 
-## Problème identifié
-Actuellement, le site est rendu directement dans une `div`. Le navigateur utilise donc la largeur de la fenêtre totale (1920px par exemple) pour appliquer les styles CSS. Il ignore donc les règles mobiles (`md:hidden`, etc.) même si la `div` ne fait que 340px.
+## User Review Required
 
-## Solution proposée
-Utiliser une `iframe` pour le rendu du site à l'intérieur des cadres (téléphone et ordinateur). Une `iframe` possède son propre "viewport", ce qui force le navigateur à appliquer les bons styles CSS en fonction de la largeur de l'iframe.
+> [!IMPORTANT]
+> **Scannage du QR Code** : Pour que le système fonctionne, vous devrez lancer le serveur une première fois et scanner un QR code qui s'affichera dans votre terminal avec votre téléphone (comme pour WhatsApp Web). Cela liera le compte du salon au serveur.
+>
+> **Hébergement** : Ce serveur doit tourner en permanence (sur un PC allumé ou un VPS) pour que les messages soient envoyés instantanément.
 
-## Changements proposés
+## Proposed Changes
 
-### 1. Mode Standalone dans `showcase-main.tsx`
-- Détecter la présence d'un paramètre `standalone=true` dans l'URL.
-- Si présent : Afficher uniquement l'application (le site) en plein écran.
-- Si absent : Afficher l'enveloppe du prototype (Showcase).
+### Backend (Nouveau dossier `whatsapp-server`)
 
-### 2. Intégration de l'Iframe
-- Dans le prototype, remplacer le composant `<AppContent />` par une `<iframe />`.
-- La source de l'iframe sera l'URL actuelle du prototype augmentée du paramètre `?standalone=true`.
+#### [NOUVEAU] [index.js](file:///C:/Users/dell/salon_app/whatsapp-server/index.js)
+- Initialisation de la connexion WhatsApp avec `baileys`.
+- Gestion de la persistance de la session (pour ne pas scanner le QR code à chaque redémarrage).
+- Création d'une API Express avec un endpoint `POST /send-notification`.
+- Logique d'envoi de message formaté.
 
-### 3. Synchronisation de la Navigation
-- Utiliser l'URL (le hash) pour synchroniser la page affichée dans le prototype et celle affichée dans l'iframe.
-- Quand on clique sur un bloc de navigation à droite, l'iframe se met à jour.
+#### [NOUVEAU] [.env](file:///C:/Users/dell/salon_app/whatsapp-server/.env)
+- Configuration du port du serveur.
+- Numéro de téléphone de la gérante (Zara).
+
+### Frontend (Application React)
+
+#### [MODIFIER] [Reservation.tsx](file:///C:/Users/dell/salon_app/src/app/pages/Reservation.tsx)
+- Ajout d'un appel API vers le nouveau serveur backend juste après la confirmation Firestore.
+- Envoi des détails (nom, service, date, créneau) au serveur.
 
 ## Plan de vérification
 
-### Vérification manuelle
-- [ ] Ouvrir le prototype.
-- [ ] Passer en mode **Mobile** : Vérifier la présence du menu hamburger et du design mobile.
-- [ ] Passer en mode **Ordinateur** : Vérifier la présence de la barre de navigation desktop.
-- [ ] Tester la navigation entre les pages via les blocs de droite.
+### Tests Automatisés / Manuels
+1.  **Lancement du Backend** : Installer les dépendances (`npm install`) et lancer le serveur (`npm start`).
+2.  **Liaison WhatsApp** : Scanner le QR code affiché dans le terminal.
+3.  **Test de Réservation** : Effectuer une réservation sur le site web.
+4.  **Vérification WhatsApp** : Confirmer que la cliente (ou le numéro de test) reçoit bien le message automatique sans action manuelle.
+
+---
+
+Souhaitez-vous que je procède à la création des fichiers du serveur ?
+*(Note: Vous devrez lancer l'installation des paquets manuellement dans le dossier `whatsapp-server` après mon intervention).*

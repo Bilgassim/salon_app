@@ -3,3 +3,6 @@
 - [x] Optimiser la mise à l'échelle (`scale`) dans `showcase-main.tsx`
 - [x] Re-générer le prototype (`npm run build:prototype`)
 - [x] Vérifier que la Navbar desktop est bien horizontale
+- [x] Créer le serveur WhatsApp (Baileys) dans `whatsapp-server/`
+- [x] Configurer l'endpoint API pour les notifications
+- [x] Connecter le frontend (`Reservation.tsx`) au serveur WhatsApp

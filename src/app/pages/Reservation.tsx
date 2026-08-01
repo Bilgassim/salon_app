@@ -347,6 +347,25 @@ export function Reservation() {
 
       console.log("Succès Firebase ! ID:", docId);
 
+      // 3. Appel au serveur de notification WhatsApp (Baileys)
+      try {
+        console.log("Appel au serveur WhatsApp...");
+        await fetch("http://localhost:3001/send-notification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            phone,
+            service: selectedService,
+            slot: selectedSlot,
+            date: formatDateFull(selectedDate)
+          })
+        });
+        console.log("Notification WhatsApp envoyée via le serveur !");
+      } catch (err) {
+        console.warn("Le serveur WhatsApp n'est pas actif ou inaccessible. Le message n'a pas été envoyé automatiquement.", err);
+      }
+
       // 2. Sauvegarde locale (Frontend)
       const bookingData: Booking = {
         id: docId!,
