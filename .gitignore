@@ -88,3 +88,8 @@ dist-ssr/
 *.njsproj
 *.sln
 *.sw?
+
+# WhatsApp Server
+whatsapp-server/auth_info_baileys/
+whatsapp-server/.env
+whatsapp-server/node_modules/

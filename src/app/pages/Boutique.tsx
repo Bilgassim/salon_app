@@ -4,6 +4,7 @@ import {
   ShoppingBag, Store, Truck, X, Check,
   MessageCircle, User, Phone, ArrowRight, Package, ChevronLeft, Sparkles, Loader2,
 } from "lucide-react";
+import { sendWhatsAppNotification } from "../utils/api";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -100,23 +101,14 @@ function OrderModal({
     console.log("🛒 Tentative d'envoi de commande au serveur...");
 
     try {
-      const response = await fetch("http://localhost:3001/send-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: nom,
-          phone: tel,
-          product: product.name,
-          qty,
-          total: totalPrice,
-          delivery,
-        }),
+      await sendWhatsAppNotification("/send-order", {
+        name: nom,
+        phone: tel,
+        product: product.name,
+        qty,
+        total: totalPrice,
+        delivery,
       });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || "Erreur serveur");
-      }
 
       console.log("✅ Commande envoyée avec succès au serveur WhatsApp");
       setStep("sent");
@@ -124,7 +116,7 @@ function OrderModal({
       console.warn("⚠️ Serveur WhatsApp injoignable, basculement vers lien direct.", err);
 
       if (window.location.protocol === "https:") {
-        alert("Note : Vous êtes sur HTTPS, le serveur WhatsApp local est bloqué par le navigateur.\n\nUtilisation du lien direct WhatsApp.");
+        alert("Note : Vous êtes sur HTTPS, le serveur WhatsApp local (http) est bloqué par le navigateur.\n\nUtilisation du lien direct WhatsApp.");
       }
 
       // Fallback: lien direct si le serveur est KO

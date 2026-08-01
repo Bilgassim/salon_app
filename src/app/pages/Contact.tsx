@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { MapPin, Clock, Phone, MessageCircle, Send, Check, Loader2, User, HelpCircle } from "lucide-react";
+import { sendWhatsAppNotification } from "../utils/api";
 
 function ContactForm() {
   const [name, setName] = useState("");
@@ -16,20 +17,19 @@ function ContactForm() {
     setIsSending(true);
 
     try {
-      const response = await fetch("http://localhost:3001/send-contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, subject, message }),
+      await sendWhatsAppNotification("/send-contact", {
+        name,
+        phone,
+        subject,
+        message,
       });
-
-      if (!response.ok) throw new Error("Erreur serveur");
 
       setSent(true);
     } catch (err) {
       console.error("Erreur envoi contact:", err);
 
       if (window.location.protocol === "https:") {
-        alert("Note : Vous êtes sur HTTPS, le serveur WhatsApp local est bloqué. Utilisation du lien direct.");
+        alert("Note : Vous êtes sur HTTPS, le serveur WhatsApp local (http) est bloqué. Utilisation du lien direct.");
       }
 
       // Fallback: lien wa.me

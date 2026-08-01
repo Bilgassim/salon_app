@@ -9,6 +9,7 @@ import { db } from "../../firebase";
 import { collection, addDoc, serverTimestamp, query, where, onSnapshot, orderBy, updateDoc, doc } from "firebase/firestore";
 import { generateGoogleCalendarLink, downloadICSFile } from "../utils/calendar";
 import { useTheme } from "../components/ThemeProvider";
+import { sendWhatsAppNotification } from "../utils/api";
 
 // ─── Types ───
 type ReservationData = {
@@ -363,31 +364,20 @@ export function Reservation() {
 
       console.log("✅ Succès Firebase ! ID:", docId);
 
-      // 3. Appel au serveur de notification WhatsApp (Baileys)
+      // 3. Appel au serveur de notification WhatsApp (Baileys) via l'utilitaire centralisé
       try {
-        console.log("📱 Appel au serveur WhatsApp local...");
-        const response = await fetch("http://localhost:3001/send-notification", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            phone,
-            service: selectedService,
-            slot: selectedSlot,
-            date: formatDateFull(selectedDate)
-          })
+        console.log("📱 Appel au serveur WhatsApp...");
+        await sendWhatsAppNotification("/send-notification", {
+          name,
+          phone,
+          service: selectedService,
+          slot: selectedSlot,
+          date: formatDateFull(selectedDate)
         });
-        if (response.ok) {
-          console.log("💬 Notification WhatsApp envoyée !");
-        } else {
-          const errData = await response.json();
-          console.warn("⚠️ Le serveur WhatsApp a répondu avec une erreur:", errData);
-          alert("Le serveur WhatsApp est connecté mais l'envoi a échoué. Vérifiez le terminal du serveur.");
-        }
+        console.log("💬 Notification WhatsApp envoyée !");
       } catch (err) {
-        console.error("❌ Erreur connexion serveur WhatsApp:", err);
         if (window.location.protocol === "https:") {
-          alert("🔴 SÉCURITÉ : Vous êtes sur un site sécurisé (HTTPS), mais le serveur WhatsApp est local (HTTP).\n\nLe navigateur bloque l'envoi pour votre sécurité. Pour tester WhatsApp, utilisez l'adresse : http://localhost:5173");
+          alert("🔴 SÉCURITÉ : Vous êtes sur un site sécurisé (HTTPS), mais le serveur WhatsApp est configuré sur une adresse non sécurisée (http://localhost:3001).\n\nLe navigateur bloque l'envoi. Pour que cela marche sur le site en ligne, vous devez utiliser une adresse HTTPS (Ngrok ou déploiement en ligne).");
         } else {
           alert("🔴 SERVEUR ÉTEINT : Impossible de joindre le serveur WhatsApp sur le port 3001.\n\nAssurez-vous d'avoir lancé 'npm start' dans le dossier 'whatsapp-server'.");
         }
