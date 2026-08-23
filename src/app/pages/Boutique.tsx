@@ -121,15 +121,14 @@ function OrderModal({
 
       // Fallback: lien direct si le serveur est KO
       const whatsappMessage = encodeURIComponent(
-        `Bonjour Mme Fatouma 👋\n\n` +
-        `Je souhaite commander le produit suivant :\n\n` +
-        `🛍️ *Produit :* ${product.name}\n` +
-        `🔢 *Quantité :* ${qty}\n` +
-        `💰 *Prix total :* ${totalPrice}\n` +
-        `📦 *Mode :* ${delivery === "retrait" ? "Retrait au salon" : "Livraison à domicile"}\n\n` +
-        `👤 *Nom & Prénom :* ${nom}\n` +
-        `📞 *Téléphone :* ${tel}\n\n` +
-        `Merci de confirmer ma commande 🙏`
+        `Commande de produit — Centre de Beauté Zara\n\n` +
+        `*Produit :* ${product.name}\n` +
+        `*Quantité :* ${qty}\n` +
+        `*Prix total :* ${totalPrice}\n` +
+        `*Mode de retrait :* ${delivery === "retrait" ? "Retrait au salon" : "Livraison à domicile"}\n\n` +
+        `*Nom :* ${nom}\n` +
+        `*Téléphone :* ${tel}\n\n` +
+        `Demande de confirmation de commande`
       );
       window.open(`https://wa.me/${WA_NUMBER}?text=${whatsappMessage}`, "_blank");
       setStep("sent");
@@ -170,15 +169,15 @@ function OrderModal({
             <div className="text-white font-black text-base leading-tight" style={{ fontFamily: "Fraunces, serif" }}>
               {product.name}
             </div>
-            <div className="text-blue-300 font-bold text-sm" style={{ fontFamily: "Fraunces, serif" }}>
+            <div className="text-rose-300 font-bold text-sm" style={{ fontFamily: "Fraunces, serif" }}>
               {product.price}
             </div>
           </div>
           {/* Mode badge */}
           <div className="absolute top-2.5 left-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-1">
             {delivery === "retrait"
-              ? <><Store className="w-3 h-3 text-blue-300" /><span className="text-[10px] font-bold text-blue-200" style={{ fontFamily: "Outfit, sans-serif" }}>Retrait salon</span></>
-              : <><Truck className="w-3 h-3 text-blue-300" /><span className="text-[10px] font-bold text-blue-200" style={{ fontFamily: "Outfit, sans-serif" }}>Livraison</span></>
+              ? <><Store className="w-3 h-3 text-rose-300" /><span className="text-[10px] font-bold text-rose-200" style={{ fontFamily: "Outfit, sans-serif" }}>Retrait salon</span></>
+              : <><Truck className="w-3 h-3 text-rose-300" /><span className="text-[10px] font-bold text-rose-200" style={{ fontFamily: "Outfit, sans-serif" }}>Livraison</span></>
             }
           </div>
         </div>

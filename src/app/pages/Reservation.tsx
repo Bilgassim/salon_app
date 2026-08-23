@@ -42,11 +42,11 @@ const cardVariant = {
 };
 
 const SERVICES = [
-  { id: "tresses", name: "Tresses", emoji: "✨", price: "À partir de 3 000 FCFA" },
-  { id: "soins", name: "Soins Cheveux", emoji: "💧", price: "À partir de 2 000 FCFA" },
-  { id: "traitement", name: "Traitement Capillaire", emoji: "🌿", price: "À partir de 4 000 FCFA" },
-  { id: "mani", name: "Manucure", emoji: "💅", price: "À partir de 1 500 FCFA" },
-  { id: "pedi", name: "Pédicure", emoji: "🦶", price: "À partir de 2 000 FCFA" },
+  { id: "tresses", name: "Tresses", icon: Scissors, price: "À partir de 3 000 FCFA" },
+  { id: "soins", name: "Soins Cheveux", icon: Droplets, price: "À partir de 2 000 FCFA" },
+  { id: "traitement", name: "Traitement Capillaire", icon: Sparkles, price: "À partir de 4 000 FCFA" },
+  { id: "mani", name: "Manucure", icon: ShieldCheck, price: "À partir de 1 500 FCFA" },
+  { id: "pedi", name: "Pédicure", icon: Scissors, price: "À partir de 2 000 FCFA" },
 ];
 
 const TIMESLOTS = [
@@ -165,13 +165,13 @@ function incrementCancelCount() {
 
 function buildWaLink(name: string, phone: string, service: string, slot: string, date: Date) {
   const msg = encodeURIComponent(
-    `🔔 *Nouvelle réservation — Centre de Beauté Zara*\n\n` +
-    `👤 *Nom :* ${name}\n` +
-    `📞 *Téléphone :* ${phone}\n` +
-    `✂️ *Service :* ${service}\n` +
-    `📅 *Date :* ${formatDateFull(date)}\n` +
-    `🕐 *Créneau :* ${slot}\n\n` +
-    `_Réservé via le site centrebeautezara.cd_`
+    `*Nouvelle réservation — Centre de Beauté Zara*\n\n` +
+    `*Nom :* ${name}\n` +
+    `*Téléphone :* ${phone}\n` +
+    `*Service :* ${service}\n` +
+    `*Date :* ${formatDateFull(date)}\n` +
+    `*Créneau :* ${slot}\n\n` +
+    `Réservation effectuée via la plateforme web`
   );
   return `https://wa.me/${WA_OWNER}?text=${msg}`;
 }
@@ -315,11 +315,8 @@ export function Reservation() {
   useEffect(() => { if (phoneError) setPhoneError(""); }, [phone]);
 
   const handleConfirm = async () => {
-    console.log("🔘 Bouton confirmer cliqué !");
-    console.log("Données actuelles:", { name, phone, selectedService, selectedSlot, selectedDate });
-
     if (!name || !selectedService || !selectedSlot) {
-      alert(`⚠️ Champs manquants :\n${!name ? "- Nom\n" : ""}${!selectedService ? "- Service\n" : ""}${!selectedSlot ? "- Créneau" : ""}`);
+      alert(`Champs obligatoires manquants :\n${!name ? "- Nom\n" : ""}${!selectedService ? "- Service\n" : ""}${!selectedSlot ? "- Créneau" : ""}`);
       return;
     }
     if (!isValidPhone(phone)) {
@@ -328,17 +325,15 @@ export function Reservation() {
     }
 
     setIsSubmitting(true);
-    console.log("🚀 Lancement de la procédure de réservation...");
 
     try {
       // 1. Sauvegarde dans Firebase (Backend)
       const serviceInfo = SERVICES.find(s => s.name === selectedService);
-      console.log("📡 Envoi vers Firebase...");
 
       let docId = existingBooking?.id;
 
       if (docId) {
-        // MODIFICATION d'une réservation existante
+        // Modification d'une réservation existante
         await updateDoc(doc(db, "reservations", docId), {
           service: selectedService,
           price: serviceInfo?.price || "À définir",
@@ -348,7 +343,7 @@ export function Reservation() {
           status: "confirmed"
         });
       } else {
-        // CRÉATION d'une nouvelle réservation
+        // Création d'une nouvelle réservation
         const docRef = await addDoc(collection(db, "reservations"), {
           name,
           phone,
@@ -362,11 +357,8 @@ export function Reservation() {
         docId = docRef.id;
       }
 
-      console.log("✅ Succès Firebase ! ID:", docId);
-
       // 3. Appel au serveur de notification WhatsApp (Baileys) via l'utilitaire centralisé
       try {
-        console.log("📱 Appel au serveur WhatsApp...");
         await sendWhatsAppNotification("/send-notification", {
           name,
           phone,
@@ -374,12 +366,11 @@ export function Reservation() {
           slot: selectedSlot,
           date: formatDateFull(selectedDate)
         });
-        console.log("💬 Notification WhatsApp envoyée !");
       } catch (err) {
         if (window.location.protocol === "https:") {
-          alert("🔴 SÉCURITÉ : Vous êtes sur un site sécurisé (HTTPS), mais le serveur WhatsApp est configuré sur une adresse non sécurisée (http://localhost:3001).\n\nLe navigateur bloque l'envoi. Pour que cela marche sur le site en ligne, vous devez utiliser une adresse HTTPS (Ngrok ou déploiement en ligne).");
+          alert("Note de sécurité : Vous êtes sur un site sécurisé (HTTPS). Pour activer l'envoi de notification automatique, le serveur WhatsApp doit être déployé sur une adresse HTTPS.");
         } else {
-          alert("🔴 SERVEUR ÉTEINT : Impossible de joindre le serveur WhatsApp sur le port 3001.\n\nAssurez-vous d'avoir lancé 'npm start' dans le dossier 'whatsapp-server'.");
+          alert("Information : Impossible de joindre le serveur WhatsApp local sur le port 3001.");
         }
       }
 
@@ -777,7 +768,7 @@ export function Reservation() {
                     {[1, 2, 3].map((s) => (
                       <div key={s} className="flex items-center gap-2">
                         <motion.div
-                          animate={{ backgroundColor: step >= s ? "#1877f2" : "transparent" }}
+                          animate={{ backgroundColor: step >= s ? "#e11d48" : "transparent" }}
                           className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border transition-colors ${
                             step >= s ? "text-white border-primary" : "text-muted-foreground border-border bg-card"
                           }`}
@@ -795,16 +786,22 @@ export function Reservation() {
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                       <h3 className="font-black text-xl text-foreground mb-4" style={{ fontFamily: "Fraunces, serif" }}>Quel service ?</h3>
                       <div className="space-y-2">
-                        {SERVICES.map((s) => (
-                          <motion.button key={s.id} whileHover={{ x: 3 }} onClick={() => setSelectedService(s.name)}
-                            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all ${
-                              selectedService === s.name ? "border-primary bg-secondary text-primary" : "border-border bg-card hover:border-blue-200"
-                            }`}
-                          >
-                            <span className="flex items-center gap-3 text-sm font-semibold"><span>{s.emoji}</span>{s.name}</span>
-                            <span className="text-xs text-muted-foreground">{s.price}</span>
-                          </motion.button>
-                        ))}
+                        {SERVICES.map((s) => {
+                          const IconComp = s.icon;
+                          return (
+                            <motion.button key={s.id} whileHover={{ x: 3 }} onClick={() => setSelectedService(s.name)}
+                              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all ${
+                                selectedService === s.name ? "border-primary bg-secondary text-primary" : "border-border bg-card hover:border-rose-200"
+                              }`}
+                            >
+                              <span className="flex items-center gap-3 text-sm font-semibold">
+                                <IconComp className="w-4 h-4 text-primary" />
+                                {s.name}
+                              </span>
+                              <span className="text-xs text-muted-foreground">{s.price}</span>
+                            </motion.button>
+                          );
+                        })}
                       </div>
                       <motion.button whileTap={{ scale: 0.97 }} onClick={() => selectedService && setStep(2)} disabled={!selectedService}
                         className="mt-4 w-full bg-primary text-primary-foreground font-bold py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-40"
@@ -841,13 +838,13 @@ export function Reservation() {
                                     : "bg-card border-border hover:border-primary hover:text-primary"
                                 }`}
                               >
-                                <span className={`text-[10px] font-bold uppercase tracking-wide ${isSelected ? "text-blue-200" : "text-muted-foreground"}`} style={{ fontFamily: "DM Mono, monospace" }}>
+                                <span className={`text-[10px] font-bold uppercase tracking-wide ${isSelected ? "text-rose-200" : "text-muted-foreground"}`} style={{ fontFamily: "DM Mono, monospace" }}>
                                   {isToday ? "auj." : d.toLocaleDateString("fr-FR", { weekday: "short" })}
                                 </span>
                                 <span className={`font-black text-base leading-tight ${isSelected ? "text-white" : "text-foreground"}`} style={{ fontFamily: "Fraunces, serif" }}>
                                   {d.getDate()}
                                 </span>
-                                <span className={`text-[9px] ${isSelected ? "text-blue-200" : "text-muted-foreground"}`} style={{ fontFamily: "Outfit, sans-serif" }}>
+                                <span className={`text-[9px] ${isSelected ? "text-rose-200" : "text-muted-foreground"}`} style={{ fontFamily: "Outfit, sans-serif" }}>
                                   {d.toLocaleDateString("fr-FR", { month: "short" })}
                                 </span>
                               </motion.button>

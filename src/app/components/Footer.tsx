@@ -9,7 +9,7 @@ const fadeUp = {
 
 export function Footer() {
   return (
-    <footer className="bg-[#04080f] text-white py-12">
+    <footer className="bg-[#120508] text-white py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
@@ -18,11 +18,11 @@ export function Footer() {
                 <Scissors className="w-4 h-4 text-primary-foreground" />
               </div>
               <span className="text-xl font-black" style={{ fontFamily: "Fraunces, serif" }}>
-                Centre de Beauté <span className="text-blue-400 italic">Zara</span>
+                Centre de Beauté <span className="text-primary italic">Zara</span>
               </span>
             </div>
             <p className="text-sm text-white/60 max-w-xs leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>
-              Votre salon de beauté de confiance depuis 2019. Tresses, soins, manucures et produits cosmétiques.
+              Salon de coiffure et de soins esthétiques établi en 2019. Tresses, soins capillaires, manucures et produits cosmétiques.
             </p>
           </motion.div>
 
@@ -45,6 +45,7 @@ export function Footer() {
                   { label: "File d'attente", to: "/reservation" },
                   { label: "Boutique", to: "/boutique" },
                   { label: "Contact", to: "/contact" },
+                  { label: "Mentions Légales & CGU", to: "/legal" },
                 ].map(({ label, to }) => (
                   <li key={label}>
                     <Link to={to} className="text-sm text-white/60 hover:text-white transition-colors" style={{ fontFamily: "Outfit, sans-serif" }}>{label}</Link>
@@ -57,7 +58,7 @@ export function Footer() {
 
         <div className="border-t border-white/10 pt-6 text-center">
           <p className="text-xs text-white/40" style={{ fontFamily: "DM Mono, monospace" }}>
-            © 2026 Centre de Beauté Zara · Mme Fatouma Zara Madjiri · Niamey, Niger
+            © 2026 Centre de Beauté Zara · Mme Fatouma Zara Madjiri · Niamey (BCEAO Francophonie), Niger
           </p>
         </div>
       </div>

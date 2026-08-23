@@ -2,7 +2,8 @@ import { Link } from "react-router";
 import { motion, useScroll, useTransform } from "motion/react";
 import {
   Scissors, Calendar, Users, Sparkles, ArrowRight,
-  Clock, Bell, QrCode, Check, ChevronRight, Star,
+  Clock, Bell, QrCode, Check, ChevronRight, Droplets,
+  ShieldCheck, ShoppingBag,
 } from "lucide-react";
 
 const fadeUp = {
@@ -16,12 +17,12 @@ const cardVariant = {
 };
 
 const SERVICES_PREVIEW = [
-  { emoji: "✨", name: "Tresses", price: "À partir de 3 000 FCFA", duration: "1h30–4h", color: "from-violet-500/20 to-purple-500/10" },
-  { emoji: "💧", name: "Soins Cheveux", price: "À partir de 2 000 FCFA", duration: "45 min", color: "from-blue-500/20 to-cyan-500/10" },
-  { emoji: "🌿", name: "Traitement Capillaire", price: "À partir de 4 000 FCFA", duration: "1h–2h", color: "from-green-500/20 to-emerald-500/10" },
-  { emoji: "💅", name: "Manucure", price: "À partir de 1 500 FCFA", duration: "30–45 min", color: "from-pink-500/20 to-rose-500/10" },
-  { emoji: "🦶", name: "Pédicure", price: "À partir de 2 000 FCFA", duration: "45 min", color: "from-amber-500/20 to-orange-500/10" },
-  { emoji: "🛍️", name: "Vente de Produits", price: "Selon produit", duration: "—", color: "from-primary/20 to-blue-500/10" },
+  { icon: Scissors, name: "Tresses", price: "À partir de 3 000 FCFA", duration: "1h30–4h", color: "from-rose-500/20 to-pink-500/10" },
+  { icon: Droplets, name: "Soins Cheveux", price: "À partir de 2 000 FCFA", duration: "45 min", color: "from-pink-500/20 to-rose-500/10" },
+  { icon: Sparkles, name: "Traitement Capillaire", price: "À partir de 4 000 FCFA", duration: "1h–2h", color: "from-rose-600/20 to-pink-600/10" },
+  { icon: ShieldCheck, name: "Manucure", price: "À partir de 1 500 FCFA", duration: "30–45 min", color: "from-rose-400/20 to-pink-400/10" },
+  { icon: Scissors, name: "Pédicure", price: "À partir de 2 000 FCFA", duration: "45 min", color: "from-pink-500/20 to-rose-500/10" },
+  { icon: ShoppingBag, name: "Vente de Produits", price: "Selon produit", duration: "Au salon", color: "from-rose-500/20 to-pink-500/10" },
 ];
 
 export function Home() {
@@ -30,18 +31,15 @@ export function Home() {
 
   return (
     <div>
-      {/* ── Hero ── */}
-      {/* MOBILE hero : image plein-largeur avec overlay */}
+      {/* Hero Mobile */}
       <section className="relative md:hidden overflow-hidden bg-background">
         <div className="relative h-[88vh] min-h-[560px]">
-          {/* Image fond */}
           <img
             src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800&h=1200&fit=crop&auto=format"
             alt="Centre de Beauté Zara"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#04080f] via-[#04080f]/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#120508] via-[#120508]/60 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-transparent" />
 
           {/* Badge haut */}
@@ -51,49 +49,39 @@ export function Home() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex items-center gap-2 bg-white/10 backdrop-blur-md text-white text-xs font-bold px-4 py-2 rounded-full border border-white/20"
             >
-              <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-              Salon ouvert 10h30 – 20h · Lun–Sam
+              <Clock className="w-3.5 h-3.5 text-rose-200" />
+              Ouvert de 10h30 à 20h00 · Lundi – Samedi
             </motion.div>
           </div>
 
           {/* Contenu bas */}
           <div className="absolute bottom-0 left-0 right-0 px-5 pb-8">
-            {/* Stats row */}
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="flex items-center gap-4 mb-5"
+              className="flex items-center gap-6 mb-5"
             >
               {[
-                { value: "2019", label: "Fondé en" },
-                { value: "10+", label: "Clientes / mois" },
-                { value: "5★", label: "Note" },
+                { value: "2019", label: "Année de création" },
+                { value: "Niamey", label: "BCEAO Francophonie" },
               ].map((s) => (
                 <div key={s.label} className="flex flex-col">
                   <span className="font-black text-white text-xl leading-none" style={{ fontFamily: "Fraunces, serif" }}>{s.value}</span>
-                  <span className="text-[10px] text-white/60 mt-0.5" style={{ fontFamily: "Outfit, sans-serif" }}>{s.label}</span>
+                  <span className="text-[10px] text-white/70 mt-0.5" style={{ fontFamily: "Outfit, sans-serif" }}>{s.label}</span>
                 </div>
               ))}
-              <div className="flex-1 flex justify-end">
-                <div className="flex items-center gap-1">
-                  {[1,2,3,4,5].map(i => <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />)}
-                </div>
-              </div>
             </motion.div>
 
-            {/* Titre */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               className="text-4xl font-black leading-[1.08] text-white mb-4"
               style={{ fontFamily: "Fraunces, serif" }}
             >
-              Votre beauté,<br />
-              <span className="text-primary italic">réservée</span> en<br />
-              un instant.
+              Soins capillaires &amp;<br />
+              <span className="text-primary italic">esthétique</span> à Niamey.
             </motion.h1>
 
-            {/* Boutons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45 }}
@@ -104,7 +92,7 @@ export function Home() {
                 className="flex-1 flex items-center justify-center gap-2 bg-primary text-white font-bold px-5 py-3.5 rounded-2xl text-sm shadow-lg shadow-primary/40"
                 style={{ fontFamily: "Outfit, sans-serif" }}
               >
-                Réserver <ArrowRight className="w-4 h-4" />
+                Prendre rendez-vous <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/services"
@@ -117,7 +105,7 @@ export function Home() {
           </div>
         </div>
 
-        {/* Bandeau salon info */}
+        {/* Info salon */}
         <motion.div
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -128,16 +116,16 @@ export function Home() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-black text-foreground text-sm" style={{ fontFamily: "Fraunces, serif" }}>Centre de Beauté Zara</div>
-            <div className="text-xs text-muted-foreground truncate" style={{ fontFamily: "Outfit, sans-serif" }}>Mme Fatouma · Niamey, Niger</div>
+            <div className="text-xs text-muted-foreground truncate" style={{ fontFamily: "Outfit, sans-serif" }}>Mme Fatouma Zara Madjiri · Niamey</div>
           </div>
           <div className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 rounded-full px-2.5 py-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
             <span className="text-[10px] font-bold text-green-700 dark:text-green-400">Ouvert</span>
           </div>
         </motion.div>
       </section>
 
-      {/* DESKTOP hero */}
+      {/* Hero Desktop */}
       <section className="relative hidden md:block pt-28 pb-24 overflow-hidden bg-background">
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
@@ -160,8 +148,8 @@ export function Home() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="inline-flex items-center gap-2 bg-secondary text-primary text-xs font-bold px-4 py-2 rounded-full mb-6 border border-accent"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                Salon ouvert 10h30 – 20h · Lun–Sam
+                <Clock className="w-3.5 h-3.5" />
+                Salon ouvert 10h30 – 20h00 · Lundi à Samedi
               </motion.div>
 
               <motion.h1
@@ -170,9 +158,8 @@ export function Home() {
                 className="text-5xl md:text-6xl font-black leading-[1.05] text-foreground mb-6"
                 style={{ fontFamily: "Fraunces, serif" }}
               >
-                Votre beauté,<br />
-                <span className="text-primary italic">réservée</span> en<br />
-                un instant.
+                Soins capillaires &amp;<br />
+                <span className="text-primary italic">esthétique</span> à Niamey.
               </motion.h1>
 
               <motion.p
@@ -181,9 +168,7 @@ export function Home() {
                 className="text-base text-muted-foreground leading-relaxed mb-8 max-w-md"
                 style={{ fontFamily: "Outfit, sans-serif" }}
               >
-                Tresses, soins capillaires, manucures, pédicures… Le Centre de Beauté Zara
-                vous accueille dans un cadre chaleureux. Réservez en ligne, suivez votre
-                position en file d&apos;attente et commandez vos produits depuis chez vous.
+                Prestations de tressage, soins capillaires, manucures et pédicures assurées par Madame Fatouma Zara Madjiri au quartier BCEAO Francophonie. Prise de rendez-vous en ligne et disponibilité des produits au salon.
               </motion.p>
 
               <motion.div
@@ -191,14 +176,14 @@ export function Home() {
                 transition={{ duration: 0.5, delay: 0.45 }}
                 className="flex flex-wrap gap-3"
               >
-                <motion.div whileHover={{ scale: 1.04, boxShadow: "0 8px 30px rgba(24,119,242,0.3)" }} whileTap={{ scale: 0.97 }}>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link to="/reservation" className="flex items-center gap-2 bg-primary text-primary-foreground font-bold px-7 py-3.5 rounded-full" style={{ fontFamily: "Outfit, sans-serif" }}>
-                    Réserver maintenant <ArrowRight className="w-4 h-4" />
+                    Prendre rendez-vous <ArrowRight className="w-4 h-4" />
                   </Link>
                 </motion.div>
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link to="/services" className="flex items-center gap-2 bg-card text-foreground font-semibold px-6 py-3.5 rounded-full border border-border hover:border-primary hover:text-primary transition-all" style={{ fontFamily: "Outfit, sans-serif" }}>
-                    Voir nos services
+                    Consulter les prestations
                   </Link>
                 </motion.div>
               </motion.div>
@@ -209,9 +194,9 @@ export function Home() {
                 className="flex items-center gap-8 mt-10 pt-10 border-t border-border"
               >
                 {[
-                  { value: "2019", label: "Fondé en" },
-                  { value: "10+", label: "Clientes fidèles / mois" },
-                  { value: "5★", label: "Note moyenne" },
+                  { value: "2019", label: "Activité établie en" },
+                  { value: "Niamey", label: "Quartier BCEAO Francophonie" },
+                  { value: "10h30 – 20h", label: "Horaires d'ouverture" },
                 ].map((s, i) => (
                   <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 + i * 0.1 }}>
                     <div className="text-2xl font-black text-primary" style={{ fontFamily: "Fraunces, serif" }}>{s.value}</div>
@@ -227,33 +212,28 @@ export function Home() {
               className="relative flex justify-center"
             >
               <div className="relative w-80 h-96">
-                <motion.div style={{ y: imgY }} className="absolute inset-0 rounded-3xl overflow-hidden shadow-2xl shadow-blue-100/50 dark:shadow-blue-900/30">
+                <motion.div style={{ y: imgY }} className="absolute inset-0 rounded-3xl overflow-hidden shadow-2xl shadow-rose-900/10">
                   <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=640&h=800&fit=crop&auto=format" alt="Salon de coiffure" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-rose-950/40 to-transparent" />
                 </motion.div>
-                <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 }} whileHover={{ scale: 1.04 }}
+                <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 }}
                   className="absolute -left-10 top-12 bg-card rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3 border border-border">
-                  <div className="w-9 h-9 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
-                    <Users className="w-4 h-4 text-green-600" />
+                  <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center">
+                    <Users className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>File d&apos;attente</div>
-                    <div className="text-xs text-muted-foreground">2 clientes avant vous</div>
+                    <div className="text-xs font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>File d'attente</div>
+                    <div className="text-xs text-muted-foreground">Suivi des passages en cours</div>
                   </div>
                 </motion.div>
-                <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8 }} whileHover={{ scale: 1.04 }}
+                <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8 }}
                   className="absolute -right-8 bottom-20 bg-card rounded-2xl shadow-xl px-4 py-3 border border-border">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar className="w-3.5 h-3.5 text-primary" />
-                    <span className="text-xs font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>Prochain créneau</span>
+                    <span className="text-xs font-bold text-foreground" style={{ fontFamily: "Outfit, sans-serif" }}>Réservation</span>
                   </div>
-                  <div className="text-lg font-black text-primary" style={{ fontFamily: "Fraunces, serif" }}>14h30</div>
-                  <div className="text-xs text-green-500 font-semibold">● Disponible</div>
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
-                  className="absolute -right-6 top-8 bg-card rounded-2xl shadow-xl px-4 py-3 flex items-center gap-2 border border-border">
-                  <span className="text-amber-400">★</span>
-                  <span className="text-sm font-black text-foreground" style={{ fontFamily: "Fraunces, serif" }}>5.0</span>
+                  <div className="text-sm font-black text-primary" style={{ fontFamily: "Fraunces, serif" }}>Créneaux ouverts</div>
+                  <div className="text-xs text-green-600 font-semibold">Service disponible</div>
                 </motion.div>
               </div>
             </motion.div>
@@ -261,116 +241,76 @@ export function Home() {
         </div>
       </section>
 
-      {/* ── Services preview ── */}
+      {/* Services preview */}
       <section className="py-10 md:py-20 bg-muted">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.05 }} variants={fadeUp} className="flex items-end justify-between mb-6 md:mb-10">
             <div>
-              <span className="text-xs font-bold text-primary uppercase tracking-widest" style={{ fontFamily: "DM Mono, monospace" }}>Nos Prestations</span>
-              <h2 className="text-2xl sm:text-4xl font-black text-foreground mt-1" style={{ fontFamily: "Fraunces, serif" }}>Tout pour votre beauté</h2>
+              <span className="text-xs font-bold text-primary uppercase tracking-widest" style={{ fontFamily: "DM Mono, monospace" }}>Prestations</span>
+              <h2 className="text-2xl sm:text-4xl font-black text-foreground mt-1" style={{ fontFamily: "Fraunces, serif" }}>Services proposés</h2>
             </div>
             <motion.div whileHover={{ x: 4 }}>
               <Link to="/services" className="hidden md:flex items-center gap-2 text-sm font-bold text-primary" style={{ fontFamily: "Outfit, sans-serif" }}>
-                Voir tous <ChevronRight className="w-4 h-4" />
+                Voir l'ensemble des tarifs <ChevronRight className="w-4 h-4" />
               </Link>
             </motion.div>
           </motion.div>
 
-          {/* Mobile : scroll horizontal */}
-          <div className="md:hidden flex gap-3 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-none">
-            {SERVICES_PREVIEW.map((s, i) => (
-              <motion.div
-                key={s.name}
-                initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.4 }}
-                className={`flex-shrink-0 w-36 bg-gradient-to-br ${s.color} bg-card rounded-2xl p-4 border border-border/50 shadow-sm`}
-              >
-                <div className="text-3xl mb-3">{s.emoji}</div>
-                <div className="font-black text-foreground text-sm leading-tight mb-1" style={{ fontFamily: "Fraunces, serif" }}>{s.name}</div>
-                <div className="text-[11px] font-bold text-primary mt-2" style={{ fontFamily: "Outfit, sans-serif" }}>{s.price}</div>
-                {s.duration !== "—" && (
-                  <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground">
-                    <Clock className="w-2.5 h-2.5" />{s.duration}
+          {/* Grid services */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.05 }} variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {SERVICES_PREVIEW.map((s) => {
+              const IconComp = s.icon;
+              return (
+                <motion.div key={s.name} variants={cardVariant}
+                  className="bg-card rounded-2xl p-6 border border-border"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center mb-3">
+                    <IconComp className="w-5 h-5 text-primary" />
                   </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Desktop : grid */}
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.05 }} variants={stagger} className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {SERVICES_PREVIEW.map((s) => (
-              <motion.div key={s.name} variants={cardVariant} whileHover={{ y: -4, boxShadow: "0 12px 40px rgba(24,119,242,0.12)" }}
-                className="bg-card rounded-2xl p-6 border border-border"
-              >
-                <div className="text-3xl mb-3">{s.emoji}</div>
-                <h3 className="text-base font-black text-foreground mb-1" style={{ fontFamily: "Fraunces, serif" }}>{s.name}</h3>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-sm font-bold text-primary" style={{ fontFamily: "Outfit, sans-serif" }}>{s.price}</span>
-                  {s.duration !== "—" && (
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
-                      <Clock className="w-3 h-3" />{s.duration}
-                    </span>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                  <h3 className="text-base font-black text-foreground mb-1" style={{ fontFamily: "Fraunces, serif" }}>{s.name}</h3>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-sm font-bold text-primary" style={{ fontFamily: "Outfit, sans-serif" }}>{s.price}</span>
+                    {s.duration !== "—" && (
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+                        <Clock className="w-3 h-3" />{s.duration}
+                      </span>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mt-6 text-center md:hidden">
             <Link to="/services" className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-bold px-6 py-3 rounded-full text-sm shadow-md shadow-primary/30" style={{ fontFamily: "Outfit, sans-serif" }}>
-              Voir tous les services <ChevronRight className="w-4 h-4" />
+              Voir l'ensemble des prestations <ChevronRight className="w-4 h-4" />
             </Link>
           </motion.div>
         </div>
       </section>
 
-      {/* ── Features strip ── */}
+      {/* Features */}
       <section className="py-10 md:py-16 bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          {/* Mobile : liste vertical stylisée */}
-          <div className="md:hidden mb-2">
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.05 }} variants={fadeUp} className="mb-6">
-              <span className="text-xs font-bold text-primary uppercase tracking-widest" style={{ fontFamily: "DM Mono, monospace" }}>Pourquoi nous choisir</span>
-              <h2 className="text-2xl font-black text-foreground mt-1" style={{ fontFamily: "Fraunces, serif" }}>Réservez en toute confiance</h2>
-            </motion.div>
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.05 }} variants={stagger} className="space-y-3">
-              {[
-                { icon: Bell, title: "Notification WhatsApp", desc: "La gérante est alertée dès votre réservation.", color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
-                { icon: Users, title: "File d'attente live", desc: "Consultez votre position avant de vous déplacer.", color: "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400" },
-                { icon: QrCode, title: "QR Code au salon", desc: "Scannez et réservez en quelques secondes.", color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400" },
-                { icon: Check, title: "Clientes prioritaires", desc: "Les réservations en ligne passent en premier.", color: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" },
-              ].map(({ icon: Icon, title, desc, color }) => (
-                <motion.div key={title} variants={cardVariant}
-                  className="flex items-center gap-4 bg-card rounded-2xl p-4 border border-border shadow-sm"
-                >
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-foreground text-sm" style={{ fontFamily: "Outfit, sans-serif" }}>{title}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5" style={{ fontFamily: "Outfit, sans-serif" }}>{desc}</div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.05 }} variants={fadeUp} className="mb-8 text-center">
+            <span className="text-xs font-bold text-primary uppercase tracking-widest" style={{ fontFamily: "DM Mono, monospace" }}>Organisation</span>
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground mt-1" style={{ fontFamily: "Fraunces, serif" }}>Fonctionnement de la plateforme</h2>
+          </motion.div>
 
-          {/* Desktop : grid */}
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.05 }} variants={stagger} className="hidden md:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.05 }} variants={stagger} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Bell, title: "Notification WhatsApp", desc: "La gérante est alertée dès votre réservation." },
-              { icon: Users, title: "File d'attente live", desc: "Consultez votre position avant de vous déplacer." },
-              { icon: QrCode, title: "QR Code au salon", desc: "Scannez et réservez en quelques secondes." },
-              { icon: Check, title: "Clientes prioritaires", desc: "Les réservations en ligne passent en premier." },
+              { icon: Bell, title: "Notification WhatsApp", desc: "Transmission directe des demandes de réservation à l'exploitante." },
+              { icon: Users, title: "Suivi de file d'attente", desc: "Consultation en temps réel de l'état d'avancement des créneaux." },
+              { icon: QrCode, title: "Accès par QR Code", desc: "Accès immédiat à la plateforme depuis le salon." },
+              { icon: Check, title: "Créneaux réservés", desc: "Traitement prioritaire accordé aux rendez-vous pris en ligne." },
             ].map(({ icon: Icon, title, desc }) => (
-              <motion.div key={title} variants={cardVariant} whileHover={{ y: -3 }} className="flex flex-col items-start gap-3 p-5 bg-card border border-border rounded-2xl">
+              <motion.div key={title} variants={cardVariant} className="flex flex-col items-start gap-3 p-5 bg-card border border-border rounded-2xl">
                 <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center">
                   <Icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <div className="font-bold text-foreground text-sm" style={{ fontFamily: "Outfit, sans-serif" }}>{title}</div>
-                  <div className="text-xs text-muted-foreground mt-1" style={{ fontFamily: "Outfit, sans-serif" }}>{desc}</div>
+                  <div className="text-xs text-muted-foreground mt-1 leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>{desc}</div>
                 </div>
               </motion.div>
             ))}
@@ -378,30 +318,25 @@ export function Home() {
         </div>
       </section>
 
-      {/* ── CTA banner ── */}
+      {/* CTA */}
       <section className="py-12 md:py-16 bg-primary relative overflow-hidden">
-        {/* Déco */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/5" />
-          <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full bg-white/5" />
-        </div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center relative z-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 md:mb-4" style={{ fontFamily: "Fraunces, serif" }}>
-              Prête pour votre prochain<br /><span className="italic text-blue-200">rendez-vous beauté ?</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-3 md:mb-4" style={{ fontFamily: "Fraunces, serif" }}>
+              Réservation en ligne
             </h2>
-            <p className="text-blue-100 mb-7 max-w-md mx-auto text-sm" style={{ fontFamily: "Outfit, sans-serif" }}>
-              Réservez votre créneau en ligne dès maintenant et profitez d&apos;un service prioritaire.
+            <p className="text-rose-100 mb-7 max-w-md mx-auto text-sm leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>
+              Consultez les plages horaires disponibles et enregistrez votre créneau au Centre de Beauté Zara.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="sm:flex-none">
-                <Link to="/reservation" className="flex items-center justify-center gap-2 bg-white text-primary font-bold px-7 py-3.5 rounded-full hover:bg-blue-50 transition-colors text-sm shadow-lg" style={{ fontFamily: "Outfit, sans-serif" }}>
-                  Réserver maintenant <ArrowRight className="w-4 h-4" />
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="sm:flex-none">
+                <Link to="/reservation" className="flex items-center justify-center gap-2 bg-white text-primary font-bold px-7 py-3.5 rounded-full hover:bg-rose-50 transition-colors text-sm shadow-lg" style={{ fontFamily: "Outfit, sans-serif" }}>
+                  Réserver un créneau <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="sm:flex-none">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="sm:flex-none">
                 <Link to="/boutique" className="flex items-center justify-center gap-2 border-2 border-white/40 text-white font-bold px-7 py-3.5 rounded-full hover:border-white transition-colors text-sm" style={{ fontFamily: "Outfit, sans-serif" }}>
-                  Voir la boutique
+                  Consulter la boutique
                 </Link>
               </motion.div>
             </div>

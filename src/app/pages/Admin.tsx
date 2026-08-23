@@ -66,18 +66,18 @@ export function Admin() {
           const data = change.doc.data() as Reservation;
 
           if (change.type === "added") {
-            // NOUVELLE RÉSERVATION
+            // Nouvelle réservation
             playAlertSound("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-            sendNotification("Nouvelle Réservation ! 🔔", `${data.name} - ${data.service} à ${data.slot}`);
+            sendNotification("Nouvelle Réservation", `${data.name} - ${data.service} à ${data.slot}`);
           }
           else if (change.type === "modified") {
-            // MODIFICATION PAR LA CLIENTE
+            // Modification par la cliente
             if (data.status === "cancelled") {
               playAlertSound("https://assets.mixkit.co/active_storage/sfx/2868/2868-preview.mp3");
-              sendNotification("Réservation ANNULÉE ❌", `${data.name} a annulé son rendez-vous.`);
+              sendNotification("Réservation Annulée", `${data.name} a annulé son rendez-vous.`);
             } else {
               playAlertSound("https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3");
-              sendNotification("Réservation Modifiée ✏️", `${data.name} a changé son créneau pour ${data.slot}`);
+              sendNotification("Réservation Modifiée", `${data.name} a changé son créneau pour ${data.slot}`);
             }
           }
         });
@@ -147,7 +147,7 @@ export function Admin() {
 
   const requestPermission = async () => {
     if (!("Notification" in window)) {
-      alert("Votre navigateur ne supporte pas les notifications. \n\nSI VOUS ÊTES SUR IPHONE : Vous devez d'abord installer l'app en faisant 'Partager' -> 'Sur l'écran d'accueil'.");
+      alert("Votre navigateur ne supporte pas les notifications.");
       return;
     }
 
@@ -155,9 +155,9 @@ export function Admin() {
       const result = await Notification.requestPermission();
       setPermission(result);
       if (result === "denied") {
-        alert("Vous avez bloqué les notifications pour ce site. \n\nPour les activer, allez dans les paramètres de votre navigateur (cliquez sur le petit cadenas à côté de l'adresse du site).");
+        alert("Notifications bloquées pour ce site dans les paramètres de votre navigateur.");
       } else if (result === "granted") {
-        alert("Alertes activées avec succès ! ✅");
+        alert("Alertes activées avec succès.");
         new Notification("Zara Beauté", { body: "Les alertes sont maintenant actives." });
       }
     } catch (e) {
@@ -201,10 +201,10 @@ export function Admin() {
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
-              className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-4 flex items-start gap-3"
+              className="mb-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-2xl p-4 flex items-start gap-3"
             >
-              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-              <div className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>
+              <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="text-xs text-rose-800 dark:text-rose-300 leading-relaxed" style={{ fontFamily: "Outfit, sans-serif" }}>
                 <strong>Note sur le son :</strong> Les navigateurs bloquent le son automatique.
                 Veuillez cliquer au moins une fois sur la page après l'avoir ouverte pour être sûre que l'alerte sonore retentisse lors d'une nouvelle réservation.
               </div>
@@ -236,10 +236,10 @@ export function Admin() {
                   {/* Badge de Rang / Status */}
                   <div className={`absolute top-0 left-0 text-white text-[10px] font-black px-3 py-1 rounded-br-xl z-10 ${
                     res.status === "cancelled" ? "bg-red-500" :
-                    isPastSlot(res.slot, res.date) ? "bg-amber-500 animate-pulse" : "bg-primary"
+                    isPastSlot(res.slot, res.date) ? "bg-amber-500" : "bg-primary"
                   }`}>
                     {res.status === "cancelled" ? "ANNULÉ" :
-                     isPastSlot(res.slot, res.date) ? "🕒 EXPIRE / RETARD" : `RANG #${index + 1}`}
+                     isPastSlot(res.slot, res.date) ? "EXPIRÉ / RETARD" : `RANG #${index + 1}`}
                   </div>
 
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
