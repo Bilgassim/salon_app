@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Bell, Users, QrCode, Check, Clock, Calendar,
   ChevronRight, Wifi, AlertCircle, Pencil, X, MessageCircle, ChevronLeft, Loader2,
+  Scissors, Droplets, Sparkles, ShieldCheck,
 } from "lucide-react";
 import { db } from "../../firebase";
 import { collection, addDoc, serverTimestamp, query, where, onSnapshot, orderBy, updateDoc, doc } from "firebase/firestore";
