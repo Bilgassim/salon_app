@@ -18,7 +18,7 @@ function figmaAssetResolver() {
 }
 
 export default defineConfig({
-  base: '/salon_app/',
+  base: process.env.NODE_ENV === 'production' ? '/salon_app/' : '/',
   plugins: [
     figmaAssetResolver(),
     // The React and Tailwind plugins are both required for Make, even if
@@ -33,7 +33,7 @@ export default defineConfig({
         short_name: 'Zara Beauté',
         description: 'Réservez votre séance de beauté au Centre Zara : tresses, soins capillaires et manucure.',
         id: 'zara-client-app',
-        theme_color: '#1877f2',
+        theme_color: '#e11d48',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
